@@ -10,6 +10,9 @@ __pycache__/
 ############################
 output/
 
+# Virtual env
+.venv/
+
 # Editor Config #
 .vscode/c_cpp_properties.json
 .vscode/settings.json
