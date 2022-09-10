@@ -2,7 +2,7 @@
 
 import socket
 
-HOST = '127.0.0.1'
+HOST = '127.0.0.1'  # HOST = l'autre machine, donc pour le server l'host c'est le client et pour le client l'host c'est le server
 PORT = 65432
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
