@@ -11,15 +11,15 @@ PORT = 65432
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as rc: # AF_INET = IPv4, SOCK_STREAM = TCP
     rc.connect((HOST, PORT))
-
-    print ("Enter the code you want to send :") # RPOS, OBSF or RBID
-    msg = input()   
-
-    rc.send(msg.encode("ASCII"))
-
-    data = rc.recv(1024)    # Unpack msg
-    
-    print(data)
-    rc.close()
+    try:
+        while True:
+            msg = input(">")
+            rc.send(msg.encode("ASCII")) 
+            data = rc.recv(1024)
+            if not data:
+                break
+            print(data.decode("ASCII"))
+    except KeyboardInterrupt:
+        rc.close()
     
 # He is the one that is closing the connection, not ros_monitor.py

@@ -24,6 +24,7 @@ class ROSMonitor:
         # Params :
         self.remote_request_port = rospy.get_param("remote_request_port", 65432)
         self.pos_broadcast_port  = rospy.get_param("pos_broadcast_port", 65431)
+        self.HOST = rospy.get_param("HOST", "127.0.0.1")
 
         # Thread for RemoteRequest handling and PositionBroadcast handling:
         self.rr_thread = threading.Thread(target=self.rr_loop)
@@ -45,13 +46,27 @@ class ROSMonitor:
         else:
             self.obstacle = False
 
+    def RPOS_response(self):
+        RPOS_format = ">fffxxxx"                # > = big-endien, f = float32 (4 octets), x = padding (1 octets), ici 16 Bytes
+        return pack(RPOS_format, self.pos[0], self.pos[1], self.pos[2])
+
+    def OBSF_response(self):
+        OBSF_format = ">Ixxxxxxxxxxxx"     # I = unint32, x = padding
+        return pack(OBSF_format, self.obstacle)
+
+    def RBID_response(self):
+        RBID_format = ">Ixxxxxxxxxxxx"     # I = unint32, x = padding
+        return pack(RBID_format, self.id)
+
     def rr_loop(self):
         # RemoteRequest thread (TCP)
+        HOST = "x.x.x.x"    # remote_client adress     
 
-        HOST = "x.x.x.x"    # remote_client adress
-
-        RPOS_format = ">fffxxxx"                # > = big-endien, f = float32 (4 octets), x = padding (1 octets) 
-        OBSF_RBID_format = ">Ixxxxxxxxxxxx"     # I = unint32, x = padding     
+        msg2client = {
+            "RPOS": self.RPOS_response,
+            "OBSF": self.OBSF_response,
+            "RBID": self.RBID_response
+        }
 
         # Init your socket here :
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as rr_socket:  # AF_INET = IPv4, SOCK_STREAM = TCP
@@ -59,39 +74,21 @@ class ROSMonitor:
 
             rr_socket.listen(1)
             (conn, addr) = rr_socket.accept()
-        
-            with conn:
-                print("Connected by", addr)
+            try: 
+                with conn:
+                    print("Connected by", addr)
 
-                while True:
-                    data = conn.recv(1024)
-                    if not data:
-                        break
-
-                    decoded_cmd = data.decode("ASCII")
-                    print("Commande received =", decoded_cmd)
-                    
-                    swithc = {
-                        "RPOS": pack(RPOS_format, self.pos[0], self.pos[1], self.pos[2]),
-                        "OBSF": pack(OBSF_RBID_format, self.obstacle, self.id)
-                    }
-                    conn.sendall(swithc.get(decoded_cmd, "Invalid command".encode("ASCII")))
-
-                    if decoded_cmd == "RPOS":
-                        # send position
-                        msg2send = pack(RPOS_format, self.pos[0], self.pos[1], self.pos[2])
-                    elif decoded_cmd == "OBSF":
-                        # send obstacle
-                        msg2send = pack(OBSF_format, self.obstacle)
-                    elif decoded_cmd == "RBID":
-                        # send id
-                        msg2send = pack(RBID_format, self.id)
-                    else:
-                        print("Error : unknown command")
-                        msg2send = pack(cmd_format, "ERRO")
-
-                    # Send msg to client
-                    conn.send(msg2send)
+                    while True:
+                        data = conn.recv(16)
+                        if not data:
+                            break
+                        decoded_cmd = data.decode("ASCII")
+                        print("Commande received =", decoded_cmd)
+                        # Send msg to client
+                        conn.send(msg2client.get(decoded_cmd, "Invalid command".encode("ASCII")))
+            except KeyboardInterrupt:
+                print("Shutting down remote server...")
+                conn.close()
 
     def pb_loop(self):
         # PositionBroadcast thread (UDP)
@@ -103,19 +100,17 @@ class ROSMonitor:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as pb_socket:  # AF_INET = IPv4, SOCK_DGRAM = UDP
             pb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)  # Enable broadcasting mode
             pb_socket.bind((HOST, self.pos_broadcast_port))
-
             pb_socket.listen(1)
             (conn, addr) = pb_socket.accept()
             with conn:
                 print("Connected by", addr)
                 while True:
-                    data = conn.recv(1024)
+                    data = conn.recv(16)
                     if not data:
                         break
                     msg2send = pack(format, self.pos[0], self.pos[1], self.pos[2], self.id)
                     conn.send(msg2send)
                     time.sleep(1)
-
 
     def quaternion_to_yaw(self, quat):
     # Uses TF transforms to convert a quaternion to a rotation angle around Z.
@@ -124,9 +119,13 @@ class ROSMonitor:
         (roll, pitch, yaw) = euler_from_quaternion([quat.x, quat.y, quat.z, quat.w])
         return yaw
 
+    def shutdown(self):
+        # Close the threads
+        self.rr_thread.join()
+        self.pb_thread.join()
+
 if __name__=="__main__":
     rospy.init_node("ros_monitor")
-
     node = ROSMonitor()
-
+    rospy.on_shutdown(node.shutdown)
     rospy.spin()
