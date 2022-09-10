@@ -32,7 +32,7 @@ class ROSMonitor:
 
         # Start the threads:
         self.rr_thread.start()
-        self.pb_thread.start()      # See when and where to close the threads!
+        self.pb_thread.start()
 
         print("ROSMonitor started!")
 
@@ -59,18 +59,15 @@ class ROSMonitor:
         return pack(RBID_format, self.id)
 
     def rr_loop(self):
-        # RemoteRequest thread (TCP)
-        HOST = "x.x.x.x"    # remote_client adress     
-
+        # RemoteRequest thread (TCP)     
         msg2client = {
             "RPOS": self.RPOS_response,
             "OBSF": self.OBSF_response,
             "RBID": self.RBID_response
         }
-
         # Init your socket here :
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as rr_socket:  # AF_INET = IPv4, SOCK_STREAM = TCP
-            rr_socket.bind((HOST, self.remote_request_port))
+            rr_socket.bind((self.HOST, self.remote_request_port))
 
             rr_socket.listen(1)
             (conn, addr) = rr_socket.accept()
@@ -92,25 +89,15 @@ class ROSMonitor:
 
     def pb_loop(self):
         # PositionBroadcast thread (UDP)
-
-        HOST = "x.x.x.x"    # Broadcast adress
         format = "fffI"    # f = float32, I = unint32
-       
-
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as pb_socket:  # AF_INET = IPv4, SOCK_DGRAM = UDP
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as pb_socket:  # AF_INET = IPv4, SOCK_DGRAM = UDP
             pb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)  # Enable broadcasting mode
-            pb_socket.bind((HOST, self.pos_broadcast_port))
-            pb_socket.listen(1)
-            (conn, addr) = pb_socket.accept()
-            with conn:
-                print("Connected by", addr)
-                while True:
-                    data = conn.recv(16)
-                    if not data:
-                        break
-                    msg2send = pack(format, self.pos[0], self.pos[1], self.pos[2], self.id)
-                    conn.send(msg2send)
-                    time.sleep(1)
+            pb_socket.bind((self.HOST, self.pos_broadcast_port))
+            print("brodcasting position...")
+            while True:
+                msg2send = pack(format, self.pos[0], self.pos[1], self.pos[2], self.id)
+                pb_socket.sendto(msg2send, ("255.255.255.255", self.pos_broadcast_port))
+                time.sleep(1)
 
     def quaternion_to_yaw(self, quat):
     # Uses TF transforms to convert a quaternion to a rotation angle around Z.
