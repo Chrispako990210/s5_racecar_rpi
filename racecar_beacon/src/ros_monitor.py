@@ -26,28 +26,46 @@ class ROSMonitor:
 
         # Thread for RemoteRequest handling:
         self.rr_thread = threading.Thread(target=self.rr_loop)
-
+        self.pb_thread = threading.Thread(target=self.pb_loop)
+        
         print("ROSMonitor started.")
+        self.rr_thread.start()
+        #self.pb_thread.start()
+
+    def pb_loop(self):
+        print("PositionBroadcast started")
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        pass
 
     def rr_loop(self):
-        # Init your socket here :
-        self.rr_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.rr_socket.bind((self.HOST, self.remote_request_port))
-        print("binded, start listening")
-        self.rr_socket.listen(1)
-        (conn, addr) = self.rr_socket.accept()
-        print("connected, adress :", addr)
-        try:
-            while True:
-                data = conn.receive(1024)
-                print("data")
-                if not data:
-                    break
-                
+        print("RemoteRequest started")
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((self.HOST, self.remote_request_port))
+        while True:
+            s.listen(1)
+            conn, addr = s.accept()
+            print("connected,  adress: ", addr)
+            try:
+                while True:
+                    data = conn.recv(1024)
+                    if not data:
+                        break
+                    print(data.decode("ASCII"))
+                    #msg = input(">")
+                    #conn.send(msg.encode("UTF-8"))
+                    if data.decode("ASCII") == 'abc':
+                        reply = '123'
+                        conn.send(reply.encode("ASCII"))
+                    else:
+                        reply2 = "jsp"
+                        conn.send(reply2.encode("ASCII"))
+            except KeyboardInterrupt:
+                print("closing remote request")
+                conn.close()
+                break
             conn.close()
-        except KeyboardInterrupt:
-            print("closing socket")
-            conn.close()
+        
             
 
     def Odom_CB(self, msg):
@@ -56,11 +74,14 @@ class ROSMonitor:
     def Scan_CB(self, msg):
         pass
 
+    def shutdown(self):
+        self.rr_thread.join()
+
 if __name__=="__main__":
     rospy.init_node("ros_monitor")
 
     node = ROSMonitor()
-
+    rospy.on_shutdown(node.shutdown)
     rospy.spin()
 
 

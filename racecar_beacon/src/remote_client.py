@@ -9,10 +9,12 @@ PORT = 65432
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 try:
-    while True: # forever
-        msg = input("Enter code : ") # send data to client
-        s.send(str(msg)) # return sent data plus an "*"
+    while True:
+        msg = input("Enter Code :")
+        s.send(msg.encode("ASCII")) 
         data = s.recv(1024)
-        print(data)
-except KeyboardInterrupt:
-    s.close() # close the connection
+        if not data:
+            break
+        print(data.decode("ASCII"))
+except KeyboardInterrupt:    
+    s.close()
