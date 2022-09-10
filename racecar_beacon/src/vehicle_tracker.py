@@ -9,7 +9,8 @@ PORT = 65431
 
 # Affiche l'adresse IP d'ou provient le signal de position (So adresse IP du racecar)
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as pb_socket:  # AF_INET = IPv4, SOCK_DGRAM = UDP
-    pb_socket.bind((HOST, PORT))
+    
+    pb_socket.connect((HOST, PORT))
     vt_format = ">fffI"                # > = big-endien, f = float32 (4 octets), x = padding (1 octets), ici 16 Bytes
     try:
         while True: 
