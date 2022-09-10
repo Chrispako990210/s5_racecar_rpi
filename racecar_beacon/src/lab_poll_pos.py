@@ -8,14 +8,14 @@ from tf.transformations import euler_from_quaternion
 def quaternion_to_yaw(quat):
     # Uses TF transforms to convert a quaternion to a rotation angle around Z.
     # Usage with an Odometry message: 
-    #   yaw = quaternion_to_yaw(msg.pose.pose.orientation)
+    #yaw = quaternion_to_yaw(msg.pose.pose.orientation)
     (roll, pitch, yaw) = euler_from_quaternion([quat.x, quat.y, quat.z, quat.w])
     return yaw
     
 class PosPoll:
     def __init__(self):
         # Add your subscribers to the class instance here, ex. :
-        # self.sub_laser = rospy.Subscriber("/scan", LaserScan, self.scan_cb)
+        self.sub_odo = rospy.Subscriber("/odometry/filtered", Odometry, self.odo_cb)
         print("pos_poll node started.")
 
         # Creates a ROS Timer that will call the timer_cb method every 1.0 sec:
@@ -26,8 +26,9 @@ class PosPoll:
         print("Timer event.")
 
     # Subscriber callback:
-    # def scan_cb(self, msg):
-    #   print("Got msg from /scan")
+    def odo_cb(self, data: Odometry):
+        print("Got msg from /scan")
+        print("Yaw: ", quaternion_to_yaw(data.pose.pose.orientation), "X", data.pose.pose.position.x, "Y", data.pose.pose.position.y)
 
 if __name__ == "__main__":
     rospy.init_node("pos_poll")
