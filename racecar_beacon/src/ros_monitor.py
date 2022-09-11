@@ -86,19 +86,17 @@ class ROSMonitor:
 
     def pb_loop(self):
         # PositionBroadcast thread (UDP)
-        format = "fffI"    # f = float32, I = unint32
+        broadcast_addr = "127.0.0.255"
+        format = ">fffI"    # f = float32, I = unint32
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP) as pb_socket:  # AF_INET = IPv4, SOCK_DGRAM = UDP
             pb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)  # Enable broadcasting mode
-            pb_socket.bind((self.HOST, self.pos_broadcast_port))
+            pb_socket.settimeout(0.2) # Empeche le blockage lors de reception
             print("brodcasting position...")
-            try:
-                while True:
+            while True:
                     msg2send = pack(format, self.pos[0], self.pos[1], self.pos[2], self.id)
-                    pb_socket.sendto(msg2send, ("255.255.255.255", self.pos_broadcast_port))
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                print("Shutting down broadcast server...")
-                pb_socket.close()
+                    print("msg2send =", unpack(format, msg2send))
+                    pb_socket.sendto(msg2send, (broadcast_addr, self.pos_broadcast_port))
+                    rospy.sleep(1)
 
     def quaternion_to_yaw(self, quat):
     # Uses TF transforms to convert a quaternion to a rotation angle around Z.
@@ -113,7 +111,11 @@ class ROSMonitor:
         self.pb_thread.join()
 
 if __name__=="__main__":
-    rospy.init_node("ros_monitor")
-    node = ROSMonitor()
-    rospy.on_shutdown(node.shutdown)
-    rospy.spin()
+    try:
+        rospy.init_node("ros_monitor")
+        node = ROSMonitor()
+        rospy.on_shutdown(node.shutdown)
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down ROSMonitor")
+        node.shutdown()
