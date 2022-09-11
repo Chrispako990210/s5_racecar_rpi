@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import socket
 from struct import unpack
@@ -16,17 +16,16 @@ format_dict = {
 }
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as rc: # AF_INET = IPv4, SOCK_STREAM = TCP
     rc.connect((HOST, PORT))
-    try:
-        while True:
-            msg = input(">")
-            rc.send(msg.encode("ASCII")) 
-            data = rc.recv(16)
-            format = format_dict.get(msg, '>16s')
-            if format:
-                print(unpack(format, data))
-            if not data:
-                break
-    except KeyboardInterrupt:
-        rc.close()
+    while True:
+        msg = input(">")
+        rc.send(msg.encode("ASCII")) 
+        data = rc.recv(16)
+        format = format_dict.get(msg, 'utf8')
+        if format == 'utf8':
+            print(data.decode(format))
+        else:
+            print(unpack(format, data))
+        if not data:
+            break
     
 # He is the one that is closing the connection, not ros_monitor.py

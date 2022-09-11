@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 import socket
@@ -20,20 +20,16 @@ class ROSMonitor:
         self.id = 0xFFFF    #UINT32
         self.pos = (0,0,0)
         self.obstacle = False
-
         # Params :
         self.remote_request_port = rospy.get_param("remote_request_port", 65432)
         self.pos_broadcast_port  = rospy.get_param("pos_broadcast_port", 65431)
-        self.HOST = rospy.get_param("HOST", "127.0.0.1")
-
+        self.HOST = rospy.get_param("HOST", '127.0.0.1')
         # Thread for RemoteRequest handling and PositionBroadcast handling:
         self.rr_thread = threading.Thread(target=self.rr_loop)
         self.pb_thread = threading.Thread(target=self.pb_loop)
-
         # Start the threads:
         self.rr_thread.start()
         self.pb_thread.start()
-
         print("ROSMonitor started!")
 
     def odom_cb(self, data: Odometry):
@@ -41,7 +37,7 @@ class ROSMonitor:
         #self.pos = (data.pose.pose.position.x, data.pose.pose.position.y, self.quaternion_to_yaw(data.pose.pose.orientation))
 
     def scan_cb(self, data: LaserScan):
-        if (data.ranges[0] < 1):
+        if min(data.ranges) <= 1:
             self.obstacle = True
         else:
             self.obstacle = False
@@ -68,24 +64,25 @@ class ROSMonitor:
         # Init your socket here :
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as rr_socket:  # AF_INET = IPv4, SOCK_STREAM = TCP
             rr_socket.bind((self.HOST, self.remote_request_port))
-
-            rr_socket.listen(1)
-            (conn, addr) = rr_socket.accept()
-            try: 
+            while not rospy.is_shutdown():
+                rr_socket.listen(1)
+                (conn, addr) = rr_socket.accept()
                 with conn:
                     print("Connected by", addr)
-
                     while True:
                         data = conn.recv(16)
                         if not data:
+                            print("Disconnected by", addr)
+                            conn.close()
                             break
                         decoded_cmd = data.decode("ASCII")
                         print("Commande received =", decoded_cmd)
                         # Send msg to client
-                        conn.send(msg2client.get(decoded_cmd, "Invalid command".encode("ASCII")))
-            except KeyboardInterrupt:
-                print("Shutting down remote server...")
-                conn.close()
+                        msg = msg2client.get(decoded_cmd, None)
+                        if msg is None:
+                            conn.send("ERROR".encode("utf8"))
+                        else:
+                            conn.send(msg())
 
     def pb_loop(self):
         # PositionBroadcast thread (UDP)
@@ -94,10 +91,14 @@ class ROSMonitor:
             pb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)  # Enable broadcasting mode
             pb_socket.bind((self.HOST, self.pos_broadcast_port))
             print("brodcasting position...")
-            while True:
-                msg2send = pack(format, self.pos[0], self.pos[1], self.pos[2], self.id)
-                pb_socket.sendto(msg2send, ("255.255.255.255", self.pos_broadcast_port))
-                time.sleep(1)
+            try:
+                while True:
+                    msg2send = pack(format, self.pos[0], self.pos[1], self.pos[2], self.id)
+                    pb_socket.sendto(msg2send, ("255.255.255.255", self.pos_broadcast_port))
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                print("Shutting down broadcast server...")
+                pb_socket.close()
 
     def quaternion_to_yaw(self, quat):
     # Uses TF transforms to convert a quaternion to a rotation angle around Z.

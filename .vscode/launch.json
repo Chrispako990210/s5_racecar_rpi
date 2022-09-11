@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "ROS: Launch",
+            "name": "ROS_monitor",
             "type": "ros",
             "request": "launch",
-            "target": "absolute path to launch file"
+            "target": "/home/racecar-s5/catkin_ws/src/s5_racecar_rpi/racecar_beacon/launch/ros_monitor.launch"
         },
         {
             // This is a debug template for python and ros nodes.
@@ -16,7 +16,6 @@
             "type": "ros",
             "request": "launch",
             "target": "/path"
-            
         }
     ]
 }
