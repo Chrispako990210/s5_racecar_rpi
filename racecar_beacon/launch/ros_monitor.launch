@@ -1,3 +1,4 @@
 <launch>
+    <arg name="HOST" default="racecar"/> <!-- Hostname of the racecar, A TERMINER ET TESTER -->
     <node pkg="racecar_beacon" type="ros_monitor.py" name="ros_monitor" output="screen" />
 </launch>

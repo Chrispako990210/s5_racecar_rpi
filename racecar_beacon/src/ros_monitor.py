@@ -94,7 +94,7 @@ class ROSMonitor:
             print("brodcasting position...")
             while True:
                     msg2send = pack(format, self.pos[0], self.pos[1], self.pos[2], self.id)
-                    print("msg2send =", unpack(format, msg2send))
+                    # print("msg2send =", unpack(format, msg2send)) #for debugging 
                     pb_socket.sendto(msg2send, (broadcast_addr, self.pos_broadcast_port))
                     rospy.sleep(1)
 
