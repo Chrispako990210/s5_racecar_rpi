@@ -33,8 +33,8 @@ class ROSMonitor:
         print("ROSMonitor started!")
 
     def odom_cb(self, data: Odometry):
-        self.pos = (data.pose.pose.position.x, data.pose.pose.position.y, data.pose.pose.position.z)
-        #self.pos = (data.pose.pose.position.x, data.pose.pose.position.y, self.quaternion_to_yaw(data.pose.pose.orientation))
+        # self.pos = (data.pose.pose.position.x, data.pose.pose.position.y, data.pose.pose.position.z)
+        self.pos = (data.pose.pose.position.x, data.pose.pose.position.y, self.quaternion_to_yaw(data.pose.pose.orientation))
 
     def scan_cb(self, data: LaserScan):
         if min(data.ranges) <= 1:
@@ -111,11 +111,7 @@ class ROSMonitor:
         self.pb_thread.join()
 
 if __name__=="__main__":
-    try:
-        rospy.init_node("ros_monitor")
-        node = ROSMonitor()
-        rospy.on_shutdown(node.shutdown)
-        rospy.spin()
-    except KeyboardInterrupt:
-        print("Shutting down ROSMonitor")
-        node.shutdown()
+    rospy.init_node("ros_monitor")
+    node = ROSMonitor()
+    rospy.on_shutdown(node.shutdown)
+    rospy.spin()
