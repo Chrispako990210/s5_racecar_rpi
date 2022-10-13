@@ -1,9 +1,7 @@
       // Define some global variables
       var rbServer = null;
       var cmdVelTopic = null;
-
-      //Some initializations after the page has been shown
-      $(document).ready(function(){
+      
         // Textarea for logging
         const textarea = document.getElementById("log");
         textarea.scrollTop = textarea.scrollHeight;
@@ -11,10 +9,15 @@
         // Buttons and event handlers
         const conn_btn = document.getElementById("connect_button");
         const clear_btn = document.getElementById("clear_button");
-        const up_btn = document.getElementById("");
-        const down_btn = document.getElementById("down_button");
-        const left_btn = document.getElementById("left_button");
-        const right_btn = document.getElementById("right_button");
+        var arrow = {
+            'up': document.getElementById("arrow_up"),
+            'down': document.getElementById("arrow_down"),
+            'left': document.getElementById("arrow_left"),
+            'right': document.getElementById("arrow_right")
+        };
+
+      //Some initializations after the page has been shown
+      $(document).ready(function(){
       });
 
       // Define some functions
@@ -31,6 +34,7 @@
         rbServer.on('connection', function(){
             console.log('Connected to websocket server.');
             textarea.value += 'Connected to websocket server with address' + ip_addr;
+
             // These lines create a topic object as defined by roslibjs
             cmdVelTopic = new ROSLIB.Topic({
                 ros : rbServer,
@@ -38,7 +42,7 @@
                 messageType : 'geometry_msgs/Twist'
             });
 
-            camTopi = new ROSLIB.Topic({
+            camTopic = new ROSLIB.Topic({
                 ros : rbServer,
                 name: '/racecar/camera/rgb/image_raw'
             });
@@ -58,6 +62,9 @@
         console.log('Clearing log');
       }
 
+      function move(key) {
+        arrow[key].style.backgroundColor = "red";
+      }
 
       // These lines create a message that conforms to the structure of the Twist defined in our ROS installation
       // It initalizes all properties to zero. They will be set to appropriate values before we publish this message.
