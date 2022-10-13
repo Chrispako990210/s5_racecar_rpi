@@ -74,9 +74,9 @@ const unsigned long time_period_high  = 10;   // 100 Hz  for ROS communication
 const unsigned long time_period_com   = 1000; // 1000 ms = max com delay (watchdog)
 
 // Hardware min-zero-max range for the steering servo and the drive
-const int pwm_min_ser = 30  ;
-const int pwm_zer_ser = 90  ;
-const int pwm_max_ser = 150 ;
+const int pwm_min_ser = 30;
+const int pwm_zer_ser = 90;
+const int pwm_max_ser = 150;
 const int pwm_min_dri = -511;
 const int pwm_zer_dri = 0;
 const int pwm_max_dri = 511;

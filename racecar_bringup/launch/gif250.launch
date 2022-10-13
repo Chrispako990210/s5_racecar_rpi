@@ -22,8 +22,8 @@
   </include>
 
   <group ns="$(arg prefix)">
-  
-    <!-- Arbitration node for twists coming from the joystick and the web client-->
+
+    <!-- Arbitration node for twists coming from the joystick and the web client -->
     <node pkg="racecar_bringup" type="cmd_vel_arbitration.py" name="cmd_vel_arbitration">     
       <remap from="cmd_vel_output" to="cmd_vel"/>
     </node>
@@ -41,7 +41,7 @@
       <param name="max_vel"   value="$(arg max_vel)"/>
       <param name="max_angle" value="$(arg max_angle)"/>
     </node>
-    
+
     <node pkg="racecar_autopilot" type="slash_controller.py" name="controller" output="screen">
       <remap from="ctl_ref" to="cmd_vel"/>
     </node>
