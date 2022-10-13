@@ -97,7 +97,7 @@ class ROSMonitor:
                             print("Commande received from client : ", decoded_cmd)
 
                             if decoded_cmd not in dict_format:
-                                conn.send("ERROR : Invalid command, please try again".encode("ASCII"))
+                                conn.send("ERROR".encode("ASCII"))
                             else:
                                 conn.send(dict_format.get(decoded_cmd)())
 

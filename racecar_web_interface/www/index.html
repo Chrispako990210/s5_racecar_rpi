@@ -22,31 +22,59 @@ Client-side:
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/dashboard.css">
 
-    <title>Laboratoire S5-GIF250</title>
+    <title>Laboratoire #1 S5-GIF250</title>
+
+    <style>
+    .column {
+    float: left;
+    width: 33.33%;
+    } 
+
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+    </style>
+
 </head>
 
 <body>
     
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
-    <div class="bg-dark p-4">
-      <h6 class="text-white h4">Config</h6>
+    <div class="bg-dark p-4"> 
+      <h4 class="text-white h4">Configuration</h4>
     </div>
   </div>
 
   <nav class="navbar navbar-dark bg-dark">
-    <div>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <div class="row">
+      <div class="column">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+      
+      <div class="column"; style="padding-left:0 px">
+        <h1 style="color:white;">Racecar</h1>   <!-- Ajout du titre "Racecar" a droite du bouton configuration -->
+      </div>
     </div>
   </nav>
   <!-- Menu END-->
 
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
+    <h1>Camera</h1>
+    <img width="320" height="240" id="videoStream" src="https://d1nslcd7m2225b.cloudfront.net/Pictures/480xAny/3/8/2/1141382_Real_Steel_2.jpg">
+    </img>
 
+    <div>
+      <button onclick="connectROS()">Connect to ROS</button>
+    </div>
   </div>
+    
+
   <!-- Main layout END-->
   
   <!-- JavaScript, import frameworks -->
@@ -73,11 +101,12 @@ Client-side:
 
 	    rbServer = new ROSLIB.Ros({
           // Assuming ros server IP is 10.42.0.1
-	      url : 'ws://10.42.0.1:9090'
+	      url : 'ws://localhost:9090'            //10.42.0.1:9090'
 	    });
 
         rbServer.on('connection', function(){
             console.log('Connected to websocket server.');
+            document.getElementById("videoStream").src = "http://localhost:8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed";
 
             // These lines create a topic object as defined by roslibjs
             cmdVelTopic = new ROSLIB.Topic({
@@ -117,7 +146,7 @@ Client-side:
            {
              cmdVelTopic.publish(twist);
            }
-      }, 200);
+      }, 200);    
 
   </script>
 </body>

@@ -23,7 +23,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as rc: # AF_INET = IPv4, 
 
             rc.send(msg.encode("ASCII"))
 
-            data = rc.recv(1024)   
+            data = rc.recv(16)   
             format = format_dict.get(msg, "ASCII") 
 
             if format == "ASCII":
