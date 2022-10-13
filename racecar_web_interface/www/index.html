@@ -13,6 +13,7 @@ Client-side:
 * https://getbootstrap.com/docs/4.0/layout/grid/
 -->
 
+<script src="js/main.js"></script>>
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -34,19 +35,49 @@ Client-side:
     </div>
   </div>
 
+
+  
+
+ 
   <nav class="navbar navbar-dark bg-dark">
-    <div>
+    <div class="container-fluid"></div>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
         <span class="navbar-toggler-icon"></span>
       </button>
+      <h1 style="color: white "><strong>TONY'S RACECAR TELEOP WEBSITE </strong></h1>
     </div>
+    
   </nav>
+
+  
   <!-- Menu END-->
+  <div>
+    <h1>Statut</h1>
+    <textarea id="feedbackBtn">
+    </textarea>
+    <button onclick="effacer()">Effacer</button>
+    <button onclick="connectROS()">Avancer</button>
+    <button onclick="reculer()">Reculer</button>
+  </div>
+  <script>
+    function effacer(){
+      document.getElementById("feedbackBtn").innerHTML="";
+    }
+    function avancer(){
+      document.getElementById("feedbackBtn").innerHTML+="avancer\n";
+    }
+    function reculer(){
+      document.getElementById("feedbackBtn").innerHTML+="reculer\n";
+    }
+    
+  </script>
+
+  <img id="videoStream" src="https://chronicle.brightspotcdn.com/dims4/default/c5d06c4/2147483647/strip/true/crop/625x352+0+25/resize/1200x675!/quality/90/?url=http%3A%2F%2Fchronicle-brightspot.s3.amazonaws.com%2F89%2F74%2F4b46fe3effe1e4f0fa4ce534f383%2Fnothing-to-see-15a34a2fc727c8.jpg">
 
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
-
   </div>
+  
   <!-- Main layout END-->
   
   <!-- JavaScript, import frameworks -->
@@ -55,70 +86,8 @@ Client-side:
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/roslib.min.js"></script> <!-- rosbridge -->
-
   <!-- Custom scripts -->
-  <script>
-      // Define some global variables
-      var rbServer = null;
-      var cmdVelTopic = null;
-
-      //Some initializations after the page has been shown
-      $(document).ready(function(){
-        document.getElementById("log").value = 'Default text\n'
-      });
-
-      // Define some functions
-      function connectROS() {
-        // This function connects to the rosbridge server
-
-	    rbServer = new ROSLIB.Ros({
-          // Assuming ros server IP is 10.42.0.1
-	      url : 'ws://10.42.0.1:9090'
-	    });
-
-        rbServer.on('connection', function(){
-            console.log('Connected to websocket server.');
-
-            // These lines create a topic object as defined by roslibjs
-            cmdVelTopic = new ROSLIB.Topic({
-                ros : rbServer,
-                name : '/racecar/cmd_vel_abtr_2',
-                messageType : 'geometry_msgs/Twist'
-            });
-	    });
-
-        rbServer.on('error', function(error) {
-          console.log('Error connecting to websocket server: ', error);
-	    });
-
-	    rbServer.on('close', function() {
-          console.log('Connection to websocket server closed.');
-	    });
-      }
-
-      // These lines create a message that conforms to the structure of the Twist defined in our ROS installation
-      // It initalizes all properties to zero. They will be set to appropriate values before we publish this message.
-      var twist = new ROSLIB.Message({
-           linear : {
-                x : 0.0,
-                y : 0.0,
-                z : 0.0
-            },
-            angular : {
-                x : 0.0,
-                y : 0.0,
-                z : 0.0
-            }
-      });
-
-      //Publishing loop cmd_vel at 5 Hz
-      setInterval(function(){
-           if(cmdVelTopic != null)
-           {
-             cmdVelTopic.publish(twist);
-           }
-      }, 200);
-
-  </script>
+  
+     
 </body>
 </html>
