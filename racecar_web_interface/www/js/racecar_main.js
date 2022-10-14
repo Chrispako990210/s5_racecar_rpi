@@ -25,6 +25,11 @@ rbServer = new ROSLIB.Ros({
   rbServer.on('connection', function(){
       console.log('Connected to websocket server.');
       textarea.value += 'Connected to websocket server with address' + ip_addr;
+      document.getElementById("conn_btn").style.display = initial;
+      document.getElementById("conn_btn").disabled = true;
+
+      document.getElementById("dconn_btn").style.display = true;
+      document.getElementById("dconn_btn").disabled = false;
 
       // These lines create a topic object as defined by roslibjs
       cmdVelTopic = new ROSLIB.Topic({
@@ -45,8 +50,10 @@ rbServer = new ROSLIB.Ros({
 
 rbServer.on('close', function() {
     console.log('Connection to websocket server closed.');
+
 });
 }
+
 
 function eraseStatus() {
   document.getElementById('log').value = '';
@@ -88,7 +95,7 @@ setInterval(function(){
     var x_cmd = -joystick.deltaY()/10;
     var y_cmd = joystick.deltaX()/50;
     // Ajouter logic pour atteindre valeurs minimum
-    console.log('x_cmd: ' + x_cmd + ' y_cmd: ' + y_cmd);
+    // console.log('x_cmd: ' + x_cmd + ' y_cmd: ' + y_cmd);
       if(cmdVelTopic != null)
       {
         twist.linear.x = y_cmd * speed;
