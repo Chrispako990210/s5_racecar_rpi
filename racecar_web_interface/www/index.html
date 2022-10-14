@@ -26,14 +26,14 @@ Client-side:
 </head>
 
 <body>
-    
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
     <div class="bg-dark p-4">
       <h6 class="text-white h4">Connect to host IP:</h6>
       <form class="form-inline">
         <input class="form-control mr-sm-2" type="text" placeholder="IP address" id="ip_address">
-        <button class="btn btn-outline-success my-2 my-sm-0" onclick="connectROS()" type="submit">Connect</button>
+        <button class="btn btn-outline-success my-2 my-sm-0" id="conn_btn" onclick="connectROS()" type="submit">Connect</button>
+        <button class="btn btn-danger my-2 my-sm-0" type="submit" id="dcnn_btn" style="display: none;" disabled>Disconnect</button>
       </form>
     </div>
   </div>
