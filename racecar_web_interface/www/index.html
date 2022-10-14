@@ -47,7 +47,7 @@ Client-side:
       </div>
         <div class="col align-start" style="margin-left: 5px;">
           <h2 class="text-white h2">Racecar dashboard</h2>
-        </div>  
+        </div>
     </div>
   </nav>
   <!-- Menu END-->
@@ -55,26 +55,16 @@ Client-side:
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
     <div class="row">
-      <div class="col-sm-2">
-        <h3>Status</h3>
-        <textarea id="log" title="Log" rows="10" cols="30" readonly></textarea>
-        <button type="button" class="btn btn-primary btn-lg" id="clear_button" onclick="eraseStatus()">Clear</button>
-        <table style="width:100%;">
-          <tbody id="topic_table">
-            <tr>
-              <td style="text-align: center;">&nbsp;</td>
-              <td style="text-align: center;"><input id="arrow_up" type='image' onclick="move('up')" src='icons/key_up.png'style="width:100%;height:100%;"></input></td>
-              <td style="text-align: center;">&nbsp;</td>
-            </tr>
-            <tr>
-              <td style="text-align: right;"><input id="arrow_left" type='image' onclick="move('left')" src='icons/key_l.png'style="width:100%;height:100%;"></input></td>
-              <td style="text-align: center;"><input id="arrow_down" type='image' onclick="move('down')" src='icons/key_d.png'style="width:100%;height:100%;"></input></td>
-              <td style="text-align: left;"><input id="arrow_right" type='image' onclick="move('right')" src='icons/key_r.png'style="width:100%;height:100%;"></input></td>
-            </tr>
-          </tbody>
-        </table> 
+      <div class="col-md-auto">
+        <div class="row" style="width: 200px;">
+        <h3 style="margin: 5px">Status</h3>
+        <textarea id="log" title="Log" rows="10" cols="30" readonly style="margin-left: 5px;"></textarea>
+        <button type="button" class="btn btn-primary btn-lg" id="clear_button" onclick="eraseStatus()" style="margin: 5px;">Clear</button>
+        </div>
+        <div id="joystick_div" style="width: 200px; margin-top: 15px;">
+        </div> 
       </div>
-      <div class="col-sm-10">
+      <div class="col-md-auto">
         <nav>
           <div class="nav nav-tabs" id="nav-tab" role="tablist">
             <button class="nav-link active" id="camera" data-toggle="tab" data-target="#nav-camera" type="button" role="tab" aria-controls="nav-profil" aria-selected="true">Camera</button>
@@ -96,6 +86,9 @@ Client-side:
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/roslib.min.js"></script> <!-- rosbridge -->
+  <script src="js/three.min.js"></script> <!-- threejs -->
+  <script src="js/threex.keyboardstate.js"></script>
+  <script src="js/virtualjoystick.js"></script> <!-- joystick -->
 
   <!-- Custom scripts -->
   <script src="js/racecar_main.js"></script>

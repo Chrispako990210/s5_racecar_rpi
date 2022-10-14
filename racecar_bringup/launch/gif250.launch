@@ -54,8 +54,6 @@
     </include>
     <node name="web_video_server" type="web_video_server" pkg="web_video_server"/>
     <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch"/>
-         
-
   </group>
 
 </launch>
