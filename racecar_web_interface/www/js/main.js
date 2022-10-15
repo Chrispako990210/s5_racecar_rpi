@@ -16,17 +16,18 @@ $(document).ready(function(){
 function connectROS() {
     // This function connects to the rosbridge server
     racecar_ip_adress = document.getElementById("racecar_ip_adress").value;
-    console.log(racecar_ip_adress);
 
     rbServer = new ROSLIB.Ros({
         // Assuming ros server IP is 10.42.0.1
-        url : 'ws://localhost:9090'                //'ws://' + racecar_ip_adress + ':9090'   //10.42.0.1:9090'
+        url : 'ws://' + racecar_ip_adress + ':9090'             //'ws://localhost:9090'          //10.42.0.1:9090'
     });
 
-
     rbServer.on('connection', function(){
-        console.log('Connected to websocket server');
+        document.getElementById("console").value += 'Connected to websocket server via adress : ' + racecar_ip_adress + '\n\n';
+        console.log('Connected to websocket server with adress : ' + racecar_ip_adress);
+
         document.getElementById("videoStream").src = "http://localhost:8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed";
+
 
         // These lines create a topic object as defined by roslibjs
         cmdVelTopic = new ROSLIB.Topic({
@@ -52,9 +53,11 @@ function text_area_manager(arg) {
     }
     else if (arg == 'foward') {
         document.getElementById("console").value += "En avant!\n";
+        twist.linear.x = 1;
     }
     else if (arg == 'stop') {
         document.getElementById("console").value += "Arret!\n";
+        twist.linear.x = 0;
     }
 }
 
@@ -84,4 +87,4 @@ setInterval(function(){
     {
         cmdVelTopic.publish(twist);
     }
-}, 200);    s
+}, 200);
