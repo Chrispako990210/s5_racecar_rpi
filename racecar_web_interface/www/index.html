@@ -33,6 +33,10 @@ Client-side:
   <div class="collapse" id="navbarToggleExternalContent">
     <div class="bg-dark p-4"> 
       <h4 class="text-white h4">Configuration</h4>
+      <input class="form-control mr-sm-2" type="text" placeholder="Inscrire l'adresse IP du Racecar" id="racecar_ip_adress" autocomplete="off" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+      <button class="btn btn-outline-success my-2 my-sm-0 mt-5" type="submit" onclick="connectROS()">Connexion</button>
+      <br><br>
+      <!-- <button class="btn btn-outline-danger" onclick="disconnectROS()">Déconnexion</button> -->
     </div>
   </div>
 
@@ -60,10 +64,7 @@ Client-side:
     <div class="row">
       <div class="col">
         <h1>Statut</h1>
-        <div class="col">
-          <textarea id="console"></textarea>
-        </div>
-
+        <textarea id="console"></textarea><br>
         <button onclick="text_area_manager('clear')">Effacer</button>
 
         <h2>Controle</h2>
@@ -75,8 +76,7 @@ Client-side:
 
       <div class="col">
         <h1>Camera</h1>
-        <img width="320" height="240" id="videoStream" src="https://d1nslcd7m2225b.cloudfront.net/Pictures/480xAny/3/8/2/1141382_Real_Steel_2.jpg">
-        </img>
+        <img width="320" height="240" id="videoStream" src="https://d1nslcd7m2225b.cloudfront.net/Pictures/480xAny/3/8/2/1141382_Real_Steel_2.jpg"></img><br>
         <button onclick="connectROS()">Connect to ROS</button>
       </div>
     </div>

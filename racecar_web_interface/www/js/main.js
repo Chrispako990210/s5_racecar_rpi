@@ -3,6 +3,7 @@
 // Define some global variables
 var rbServer = null;
 var cmdVelTopic = null;
+var racecar_ip_adress = null;
 
 // Some initializations after the page has been shown
 $(document).ready(function(){
@@ -14,15 +15,17 @@ $(document).ready(function(){
 
 function connectROS() {
     // This function connects to the rosbridge server
+    racecar_ip_adress = document.getElementById("racecar_ip_adress").value;
+    console.log(racecar_ip_adress);
 
     rbServer = new ROSLIB.Ros({
         // Assuming ros server IP is 10.42.0.1
-        url : 'ws://localhost:9090'            //10.42.0.1:9090'
+        url : 'ws://localhost:9090'                //'ws://' + racecar_ip_adress + ':9090'   //10.42.0.1:9090'
     });
 
 
     rbServer.on('connection', function(){
-        console.log('Connected to websocket server.');
+        console.log('Connected to websocket server');
         document.getElementById("videoStream").src = "http://localhost:8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed";
 
         // These lines create a topic object as defined by roslibjs
@@ -38,7 +41,7 @@ function connectROS() {
     });
 
     rbServer.on('close', function() {
-        console.log('Connection to websocket server closed.');
+        console.log('Connection to websocket server closed');
     });
 }
 
@@ -55,6 +58,10 @@ function text_area_manager(arg) {
     }
 }
 
+function disconnectROS() {
+    // This function disconnects from the rosbridge server
+    rbServer.close();
+}
 
 // These lines create a message that conforms to the structure of the Twist defined in our ROS installation
 // It initalizes all properties to zero. They will be set to appropriate values before we publish this message.
@@ -77,4 +84,4 @@ setInterval(function(){
     {
         cmdVelTopic.publish(twist);
     }
-}, 200);    
+}, 200);    s
