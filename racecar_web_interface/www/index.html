@@ -22,7 +22,7 @@ Client-side:
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/dashboard.css">
 
-    <title>Laboratoire S5-GIF250</title>
+    <title>Laboratoire S5-APP1</title>
 </head>
 
 <body>
@@ -30,23 +30,75 @@ Client-side:
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
     <div class="bg-dark p-4">
-      <h6 class="text-white h4">Config</h6>
+      <h6 class="text-white h4">Connexion</h6>
+      <form>
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="form-group">
+              <input type="IP" class="form-control" id="IPform" placeholder="Entrez l'adresse IP">
+            </div>
+          </div>
+          <div class="col-sm-1">
+            <button type="submit" class="btn btn-primary" onclick="connectROS()">Connexion</button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 
   <nav class="navbar navbar-dark bg-dark">
-    <div>
+    <div class="column">
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
         <span class="navbar-toggler-icon"></span>
       </button>
+    </div>
+    <div class="col align-self-start">
+      <h2 style="color: white">Racecar</h2>
     </div>
   </nav>
   <!-- Menu END-->
 
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
-
+    <script>
+      function avancer(){
+          var text = "En avant!\n";
+          document.getElementById("status").innerHTML += text;
+      } 
+      function arreter(){
+          var text = "Arret!\n";
+          document.getElementById("status").innerHTML += text;
+      } 
+      function effacer(){
+          var text = "";
+          document.getElementById("status").innerHTML = text;
+      }              
+    </script>
+    <div class="row">
+      <div class="col-md-4">
+        <h1>Statut</h1>
+        <textarea id="status" rows="10" ></textarea>
+        <div>
+            <button class="btn btn-dark" onclick='effacer()'>Effacer</button>
+        </div>
+        <h2>Contrôle</h2>
+        <div class="row">
+          <div class="col-md-12">
+                <button class="btn btn-dark" onclick='avancer()'>Avancer</button>          
+                <button class="btn btn-dark" onclick='arreter()'>Arreter</button>
+          </div>
+      </div>
+    </div>
+      <div class="col-md-8">
+        <h1>Caméra</h1>      
+          <div>
+            <img src="http://localhost:8080/stream?topic=/camera/rgb/image_raw" width="100%" height="50%">
+          </div>       
+      </div>
+    </div>
+      
   </div>
+  
   <!-- Main layout END-->
   
   <!-- JavaScript, import frameworks -->
@@ -70,11 +122,12 @@ Client-side:
       // Define some functions
       function connectROS() {
         // This function connects to the rosbridge server
-
-	    rbServer = new ROSLIB.Ros({
-          // Assuming ros server IP is 10.42.0.1
-	      url : 'ws://10.42.0.1:9090'
-	    });
+        
+        var ip = document.getElementById("IPform").value;
+        
+        rbServer = new ROSLIB.Ros({
+          url : 'ws://' + ip + ':9090'
+        });
 
         rbServer.on('connection', function(){
             console.log('Connected to websocket server.');
