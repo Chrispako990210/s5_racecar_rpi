@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <!-- 
 ==References==
 Server-side:
@@ -23,19 +24,6 @@ Client-side:
     <link rel="stylesheet" href="css/dashboard.css">
 
     <title>Laboratoire #1 S5-GIF250</title>
-
-    <style>
-    .column {
-    float: left;
-    width: 33.33%;
-    } 
-
-    .row:after {
-      content: "";
-      display: table;
-      clear: both;
-    }
-    </style>
 </head>
 
 
@@ -63,20 +51,41 @@ Client-side:
   </nav>
   <!-- Menu END-->
 
+
+
+
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
-    <h1>Camera</h1>
-    <img width="320" height="240" id="videoStream" src="https://d1nslcd7m2225b.cloudfront.net/Pictures/480xAny/3/8/2/1141382_Real_Steel_2.jpg">
-    </img>
+    
+    <div class="row">
+      <div class="col">
+        <h1>Statut</h1>
+        <div class="col">
+          <textarea id="console"></textarea>
+        </div>
 
-    <div>
-      <button onclick="connectROS()">Connect to ROS</button>
+        <button onclick="text_area_manager('clear')">Effacer</button>
+
+        <h2>Controle</h2>
+        <div class="row">
+          <button onclick="text_area_manager('foward')">Avancer</button>
+          <button onclick="text_area_manager('stop')">Arreter</button>
+        </div>
+      </div>
+
+      <div class="col">
+        <h1>Camera</h1>
+        <img width="320" height="240" id="videoStream" src="https://d1nslcd7m2225b.cloudfront.net/Pictures/480xAny/3/8/2/1141382_Real_Steel_2.jpg">
+        </img>
+        <button onclick="connectROS()">Connect to ROS</button>
+      </div>
     </div>
   </div>
-    
 
   <!-- Main layout END-->
   
+
+
   <!-- JavaScript, import frameworks -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <script src="js/jquery-3.3.1.slim.min.js"></script>

@@ -10,7 +10,8 @@ $(document).ready(function(){
 });
 
 
-// Define some functions
+// Define some functions:
+
 function connectROS() {
     // This function connects to the rosbridge server
 
@@ -40,6 +41,20 @@ function connectROS() {
         console.log('Connection to websocket server closed.');
     });
 }
+
+function text_area_manager(arg) {
+    // This function manages the text area
+    if (arg == 'clear') {
+        document.getElementById("console").value = "";
+    }
+    else if (arg == 'foward') {
+        document.getElementById("console").value += "En avant!\n";
+    }
+    else if (arg == 'stop') {
+        document.getElementById("console").value += "Arret!\n";
+    }
+}
+
 
 // These lines create a message that conforms to the structure of the Twist defined in our ROS installation
 // It initalizes all properties to zero. They will be set to appropriate values before we publish this message.
