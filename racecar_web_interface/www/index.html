@@ -13,7 +13,7 @@ Client-side:
 * https://getbootstrap.com/docs/4.0/layout/grid/
 -->
 
-<script src="js/main.js"></script>>
+
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -27,11 +27,14 @@ Client-side:
 </head>
 
 <body>
-    
+
+
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
     <div class="bg-dark p-4">
-      <h6 class="text-white h4">Config</h6>
+      <input  class="form-control" id="adressIP"  placeholder="Enter your IP adress">
+      <button onclick="connectROS()" class="btn btn-outline-success">Connexion</button>
+      
     </div>
   </div>
 
@@ -50,30 +53,24 @@ Client-side:
   </nav>
 
   
-  <!-- Menu END-->
   <div>
     <h1>Statut</h1>
-    <textarea id="feedbackBtn">
-    </textarea>
-    <button onclick="effacer()">Effacer</button>
-    <button onclick="connectROS()">Avancer</button>
-    <button onclick="reculer()">Reculer</button>
-  </div>
-  <script>
-    function effacer(){
-      document.getElementById("feedbackBtn").innerHTML="";
-    }
-    function avancer(){
-      document.getElementById("feedbackBtn").innerHTML+="avancer\n";
-    }
-    function reculer(){
-      document.getElementById("feedbackBtn").innerHTML+="reculer\n";
-    }
-    
-  </script>
-
-  <img id="videoStream" src="https://chronicle.brightspotcdn.com/dims4/default/c5d06c4/2147483647/strip/true/crop/625x352+0+25/resize/1200x675!/quality/90/?url=http%3A%2F%2Fchronicle-brightspot.s3.amazonaws.com%2F89%2F74%2F4b46fe3effe1e4f0fa4ce534f383%2Fnothing-to-see-15a34a2fc727c8.jpg">
-
+   </div>
+   
+<img style="width:300px;height:200px;" id="videoStream" src="http://localhost:8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed">   
+<canvas float=left id="canvas" name="game"></canvas>
+<!-- <p style="text-align: center;">
+  X: <span id="x_coordinate"> </span>
+  Y: <span id="y_coordinate"> </span>
+  Speed: <span id="speed"> </span> %
+  Angle: <span id="angle"> </span><br><br>
+  linear.X: <span id="x"> </span>
+  linear.Y: <span id="y"> </span>
+  linear.Z: <span id="z"> </span> 
+  Angle.X: <span id="ax"> </span>
+  Angle.Y: <span id="ay"> </span>
+  Angle.Z: <span id="az"> </span>
+</p> -->
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
   </div>
@@ -82,12 +79,16 @@ Client-side:
   
   <!-- JavaScript, import frameworks -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  
+  <!-- Custom scripts -->
   <script src="js/jquery-3.3.1.slim.min.js"></script>
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/roslib.min.js"></script> <!-- rosbridge -->
-  <!-- Custom scripts -->
-  
+  <script src="js/joystickSim.js"></script>
+  <script src="js/main.js"></script> 
+
+
      
 </body>
 </html>
