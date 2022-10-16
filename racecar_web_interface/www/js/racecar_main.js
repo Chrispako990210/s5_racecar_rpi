@@ -48,7 +48,16 @@ function connectROS() {
           ros : rbServer,
           name: '/racecar/scan',
           messageType: 'sensor_msgs/LaserScan'
+      });
+
+      camTopic.subscribe(function(message) {
+        getElementById("camera_feed").src = 'data:image/jpeg;base64,' + message.data;
+      });
+
+      lidarTopic.subscribe(function(message) {
+        getElementById("lidar_feed").src = 'data:image/jpeg;base64,' + message.data;
   });
+});
 
   rbServer.on('error', function(error) {
     console.log('Error connecting to websocket server: ', error);
@@ -56,14 +65,8 @@ function connectROS() {
 
   rbServer.on('close', function() {
       console.log('Connection to websocket server closed.');
-
   });
 }
-
-camTopic.subscribe(function(message) {
-  getElementById("camera_feed").src = 'data:image/jpeg;base64,' + message.data;
-});
-
 
 
 function eraseStatus() {
@@ -86,15 +89,15 @@ var twist = new ROSLIB.Message({
       }
 });
 
-// VirtualJoystick rendering 
-var joystick = new VirtualJoystick({
-    mouseSupport: true,
-    stationaryBase: true,
-    baseX: document.getElementById('joystick_div').getBoundingClientRect().left + 100,
-    baseY: document.getElementById('joystick_div').getBoundingClientRect().top + 100,
-    limitStickTravel: true,
-    stickRadius: 50
-  });
+// // VirtualJoystick rendering 
+// var joystick = new VirtualJoystick({
+//     mouseSupport: true,
+//     stationaryBase: true,
+//     baseX: document.getElementById('joystick_div').getBoundingClientRect().left + 100,
+//     baseY: document.getElementById('joystick_div').getBoundingClientRect().top + 100,
+//     limitStickTravel: true,
+//     stickRadius: 50
+//   });
 
   function scale(value, lim_in_min, lim_in_max, lim_out_min, lim_out_max) {
     return (value - lim_in_min) * (lim_out_max - lim_in_max) / (lim_out_min - lim_in_min) + lim_in_max;
@@ -103,8 +106,6 @@ var joystick = new VirtualJoystick({
 
 //Publishing loop cmd_vel at 5 Hz
 setInterval(function(){
-    var x_cmd = -joystick.deltaY()/10;
-    var y_cmd = joystick.deltaX()/50;
     // Ajouter logic pour atteindre valeurs minimum
     // console.log('x_cmd: ' + x_cmd + ' y_cmd: ' + y_cmd);
       if(cmdVelTopic != null)

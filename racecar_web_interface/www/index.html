@@ -61,9 +61,9 @@ Client-side:
         <textarea id="log" title="Log" rows="10" cols="30" readonly style="margin-left: 5px;"></textarea>
         <button type="button" class="btn btn-primary btn-lg" id="clear_button" onclick="eraseStatus()" style="margin: 5px;">Clear</button>
         </div>
-        <div id="joystick_div" style="width: 200px; margin-top: 15px;">
+        <div class="row" style="width: 200px;">
+          <h3 style="margin: 5px">Control</h3>
         </div>
-      </div>
       <div class="col-md-auto">
         <nav>
           <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -92,7 +92,6 @@ Client-side:
   <script src="js/roslib.min.js"></script> <!-- rosbridge -->
   <script src="js/three.min.js"></script> <!-- threejs -->
   <script src="js/threex.keyboardstate.js"></script>
-  <script src="js/virtualjoystick.js"></script> <!-- joystick -->
 
   <!-- Custom scripts -->
   <script src="js/racecar_main.js"></script>
