@@ -62,7 +62,7 @@ Client-side:
         <button type="button" class="btn btn-primary btn-lg" id="clear_button" onclick="eraseStatus()" style="margin: 5px;">Clear</button>
         </div>
         <div id="joystick_div" style="width: 200px; margin-top: 15px;">
-        </div> 
+        </div>
       </div>
       <div class="col-md-auto">
         <nav>
@@ -70,10 +70,14 @@ Client-side:
             <button class="nav-link active" id="camera" data-toggle="tab" data-target="#nav-camera" type="button" role="tab" aria-controls="nav-profil" aria-selected="true">Camera</button>
             <button class="nav-link" id="lidar" data-toggle="tab" data-target="#nav-lidar" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Lidar</button>
           </div>
-        </nav>
+        </nav>  
         <div class="tab-content" id="nav-tabContent">
-          <div class="tab-pane fade show active" id="nav-camera" role="tabpanel" aria-labelledby="nav-camera-tab">Cam content here</div>
-          <div class="tab-pane fade" id="nav-lidar" role="tabpanel" aria-labelledby="nav-lidar-tab">Lidar content here</div>
+          <div class="tab-pane fade show active" id="nav-camera" role="tabpanel" aria-labelledby="nav-camera-tab">
+            <img id="camera_feed">
+          </div>
+          <div class="tab-pane fade" id="nav-lidar" role="tabpanel" aria-labelledby="nav-lidar-tab">
+            <img id="lidar_feed">
+          </div>
         </div>        
       </div>
     </div>

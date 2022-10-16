@@ -17,10 +17,10 @@ function connectROS() {
   var ip_addr = document.getElementById("ip_address").value;
   console.log(ip_addr);
 
-rbServer = new ROSLIB.Ros({
-    // Assuming ros server IP is 10.42.0.1
-  url : 'ws://'+ ip_addr +':9090'
-});
+  rbServer = new ROSLIB.Ros({
+      // Assuming ros server IP is 10.42.0.1
+    url : 'ws://'+ ip_addr +':9090'
+  });
 
   rbServer.on('connection', function(){
       console.log('Connected to websocket server.');
@@ -40,19 +40,30 @@ rbServer = new ROSLIB.Ros({
 
       camTopic = new ROSLIB.Topic({
           ros : rbServer,
-          name: '/racecar/camera/rgb/image_raw'
+          name: '/racecar/raspicam_node/image/compressed',
+          messageType: 'sensor_msgs/CompressedImage'
       });
-});
+
+      lidarTopic = new ROSLIB.Topic({
+          ros : rbServer,
+          name: '/racecar/scan',
+          messageType: 'sensor_msgs/LaserScan'
+  });
 
   rbServer.on('error', function(error) {
     console.log('Error connecting to websocket server: ', error);
-});
+  });
 
-rbServer.on('close', function() {
-    console.log('Connection to websocket server closed.');
+  rbServer.on('close', function() {
+      console.log('Connection to websocket server closed.');
 
-});
+  });
 }
+
+camTopic.subscribe(function(message) {
+  getElementById("camera_feed").src = 'data:image/jpeg;base64,' + message.data;
+});
+
 
 
 function eraseStatus() {
