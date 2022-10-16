@@ -88,3 +88,47 @@ body {
   border-color: transparent;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
+
+
+/* For the joystick controller: */
+
+.game-wrapper{
+  margin: 50px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 50px;
+}
+
+.arrow {
+  margin: auto;
+  width: 0; 
+  height: 0; 
+  border-left: 50px solid transparent;
+  border-right: 50px solid transparent;
+  
+  border-bottom: 50px solid black;
+  cursor: pointer;
+}
+
+.joystick-wrapper{
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+}
+
+.arrow:hover{
+  border-bottom: 50px solid rgb(44, 143, 255);
+}
+
+.joystick-wrapper div:nth-of-type(2){
+  transform: rotate(-90deg);
+}
+
+.joystick-wrapper div:nth-of-type(3){
+  transform: rotate(90deg);
+}
+  
+.joystick-wrapper div:nth-of-type(4){
+  transform: rotate(180deg);
+}

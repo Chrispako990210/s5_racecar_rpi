@@ -5,6 +5,10 @@ var rbServer = null;
 var cmdVelTopic = null;
 var racecar_ip_adress = null;
 var racecar_username = null;
+var joystick = null;   
+var direction = null;   // 'foward', 'backward', 'left', 'right' with arrows
+
+var motor_tension = 1;  // Volts
 
 // Some initializations after the page has been shown
 $(document).ready(function(){
@@ -93,6 +97,59 @@ var twist = new ROSLIB.Message({
         z : 0.0
     }
 });
+
+// Fonctionnement des fleches pour le deplacement du racecar:
+arrows = document.querySelectorAll(".arrow");
+
+arrows.forEach((arrow) => {
+    arrow.addEventListener('mousedown', handleClick)
+    arrow.addEventListener('mouseup', stopMove)
+})
+
+function handleClick(event) {
+    direction = event.target.getAttribute('id');
+    moveCar(direction);
+}
+
+function stopMove(event) {
+    moveCar('stop')
+}
+
+function moveCar(direction) {
+    switch (direction) {
+        case 'ArrowUp':
+            twist.linear.x = 1*motor_tension;
+            break;        
+        case 'ArrowDown':
+            twist.linear.x = -1*motor_tension;
+            break;
+        case 'ArrowLeft':
+            twist.angular.z = 1;
+            break;
+        case 'ArrowRight':
+            twist.angular.z = -1;
+            break;
+        case 'stop':
+            twist.linear.x = 0;
+            break;
+    }
+}
+
+
+// joystick = new VirtualJoystick({
+//     mouseSupport: true,
+//     stationaryBase: true,
+//     baseX: document.getElementById('joystick').getBoundingClientRect().left + 100,  // Definition de la position du joystick en X par rapport au bord gauche de la page
+//     baseY: document.getElementById('joystick').getBoundingClientRect().top + 50,    // Definition de la position du joystick en Y par rapport a l'endroit defini dans index.html
+//     limitStickTravel: true,
+//     stickRadius: 50     // Definition du rayon de mouvement du joystick autour de son centre
+// });
+
+// console.log('Joystick initialized');
+// console.log('Joystick delta x : ' + joystick.deltaX());
+// console.log('Joystick delta y : ' + joystick.deltaY());
+
+
 
 //Publishing loop cmd_vel at 5 Hz
 setInterval(function(){

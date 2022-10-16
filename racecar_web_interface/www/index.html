@@ -71,18 +71,34 @@ Client-side:
       <div class="col">
         <h1>Statut</h1>
         <textarea id="console" autocomplete="off" rows="10" cols="60"></textarea><br>
-        <button id="erase_button" onclick="text_area_manager('clear')">Effacer</button>
+        <button class="btn btn-secondary" id="erase_button" onclick="text_area_manager('clear')">Effacer</button>
 
         <h2>Controle</h2>
+          <div class="game-wrapper">
+            <div class="joystick-wrapper">
+              <p></p>
+              <div class="arrow" id="ArrowUp"></div>
+              <p></p>
+              <div class="arrow" id="ArrowLeft"></div>
+              <p></p>
+              <div class="arrow" id="ArrowRight"></div>
+              <p></p>
+              <div class="arrow" id="ArrowDown"></div>
+              <p></p>
+            </div>
+          </div>
+        
+        <!-- <div id="joystick" style="width: 200px; margin-top: 15px;"></div> -->
+        
         <div class="row">
-          <button id="foward_button" onclick="text_area_manager('foward')" disabled="disabled">Avancer</button>
-          <button id="stop_button" onclick="text_area_manager('stop')" disabled="disabled">Arreter</button>
+          <button class="btn btn-success" id="foward_button" onclick="text_area_manager('foward')" disabled="disabled">Avancer</button>
+          <button class="btn btn-danger" id="stop_button" onclick="text_area_manager('stop')" disabled="disabled">Arreter</button>
         </div>
       </div>
 
       <div class="col">
         <h1>Camera</h1>
-        <img width="320" height="240" id="videoStream" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAb1BMVEX///8AAACXl5fQ0NA4ODhMTEzt7e329vb8/PwuLi7n5+eioqLCwsJjY2OdnZ0FBQXR0dFGRkZ1dXVqamrZ2dkkJCS6urq0tLR7e3uqqqpVVVWGhoZdXV3f398UFBSRkZEdHR0YGBhQUFA9PT1wcHAuDD5UAAAD3UlEQVR4nO2daXuqMBBGibu4tHWtW7W2//833mqrNwPDAC6QTN7zSQnk4SgmJJKZKAIAAAAAAAAAAAAAAAAAAAAAAAAAAACETTxcjRs1MV42Ow+yWDVWXFXd5cjUzmR4v9/6XNM4uX33XbPblc193+T4Uk+DbO5s63RKsund7Lfr/68m5rxd4dZrdWNXsrlu7r3VJZLN+y1+rx+kjv5le+elJguRt/KCk2Qdf9vjOs6/AH3RJs0wXcVvQbf6cy/IVxm/LtfT/Rb1mRJHmBYXXLIVnItS165LrAr6ddr88aeyZrWnXJZiff8g6/BT4Udy42gwbNbEopHqtUYF/OJW5gf0U7pKbBrcfjPxEDrviROa5R6yFy6Bn2LaE667z3fII6Yt3zZn99lcEDTJLuSm24jHQ1sN+ZeY/MpThuR2+7sig1zI7yo1BrLIbSajnv1uXplBHh37tFqZu/WmnNTI/nzoZ/BaoUMOZKST1TYs2G9tQa4AUtMNN7rPwz5nfhzVXXN+0x69xiN7VL+sWELEbkDYH2Kylzvz0jwVEUO71XrQHNBjsNt4poWP2fHs347E8GC/cQl7QJe+rWlwfvPLvQExtPr7soOx52I38utE2Y4dDO2v5cTQep3dKNeCdWZtWkImYq5nb805eW7YTI0UTgzsXbw27LGD2SNtJH02ZCZiTLqb89ewy85ZT1PDPW8N+YkY5obHU0N+IoYd7vlpyE7EHPjxv4+G/ETMPuNQ/wyP7L9GrV3Wof4ZsgyyD1VheJQGQhoM5aGs/4ajnClP7w1z/xz23HCSf6jXhp9F5gN9Nszq4yn+GvYz+3iKt4bS7D7BU8N28clOPw3LTFf7aLgt9bemh4YlHwDzz/BY8lD/DNv5exNg6AgwFIChI8BQAIaOAEMBGDoCDAVg6AgwFIChI8BQAIaOAEMBGDoCDAVg6AgwFIChI8BQAIaOAEMBGDoCDAVg6AgwFIChI8BQAIaOEJSh/mcT9T9fGsAzwkb/c94mgGf1jf71FiaANTNG/7onE8DaNaN//eEJ7WtITQDrgI3+tdwmgPX4RllMBf1xMfTHNgkhPk0UQIyhSH+cqCiAWF+R/nhtUQAx9yL9cRNPlIt9qT9+6cF+4xIPi0GrP46w/ljQ+uN564/Jrj+uvv7cCAHkt3AxRwlNOnJvjpIA8sykcwVtleUKcj3fU7GfjZjvye2cXUVvtKScXQHkXQsgd57+/IcB5LDUm4fUngDRmUuWpE/UmA/4M1mkLqdznCpSk5f7PHDM+r9fR271aDZzYJgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAqJZ/5vND2HdQ9r4AAAAASUVORK5CYII="></img>
+<img width="320" height="240" id="videoStream" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAb1BMVEX///8AAACXl5fQ0NA4ODhMTEzt7e329vb8/PwuLi7n5+eioqLCwsJjY2OdnZ0FBQXR0dFGRkZ1dXVqamrZ2dkkJCS6urq0tLR7e3uqqqpVVVWGhoZdXV3f398UFBSRkZEdHR0YGBhQUFA9PT1wcHAuDD5UAAAD3UlEQVR4nO2daXuqMBBGibu4tHWtW7W2//833mqrNwPDAC6QTN7zSQnk4SgmJJKZKAIAAAAAAAAAAAAAAAAAAAAAAAAAAACETTxcjRs1MV42Ow+yWDVWXFXd5cjUzmR4v9/6XNM4uX33XbPblc193+T4Uk+DbO5s63RKsund7Lfr/68m5rxd4dZrdWNXsrlu7r3VJZLN+y1+rx+kjv5le+elJguRt/KCk2Qdf9vjOs6/AH3RJs0wXcVvQbf6cy/IVxm/LtfT/Rb1mRJHmBYXXLIVnItS165LrAr6ddr88aeyZrWnXJZiff8g6/BT4Udy42gwbNbEopHqtUYF/OJW5gf0U7pKbBrcfjPxEDrviROa5R6yFy6Bn2LaE667z3fII6Yt3zZn99lcEDTJLuSm24jHQ1sN+ZeY/MpThuR2+7sig1zI7yo1BrLIbSajnv1uXplBHh37tFqZu/WmnNTI/nzoZ/BaoUMOZKST1TYs2G9tQa4AUtMNN7rPwz5nfhzVXXN+0x69xiN7VL+sWELEbkDYH2Kylzvz0jwVEUO71XrQHNBjsNt4poWP2fHs347E8GC/cQl7QJe+rWlwfvPLvQExtPr7soOx52I38utE2Y4dDO2v5cTQep3dKNeCdWZtWkImYq5nb805eW7YTI0UTgzsXbw27LGD2SNtJH02ZCZiTLqb89ewy85ZT1PDPW8N+YkY5obHU0N+IoYd7vlpyE7EHPjxv4+G/ETMPuNQ/wyP7L9GrV3Wof4ZsgyyD1VheJQGQhoM5aGs/4ajnClP7w1z/xz23HCSf6jXhp9F5gN9Nszq4yn+GvYz+3iKt4bS7D7BU8N28clOPw3LTFf7aLgt9bemh4YlHwDzz/BY8lD/DNv5exNg6AgwFIChI8BQAIaOAEMBGDoCDAVg6AgwFIChI8BQAIaOAEMBGDoCDAVg6AgwFIChI8BQAIaOAEMBGDoCDAVg6AgwFIChI8BQAIaOEJSh/mcT9T9fGsAzwkb/c94mgGf1jf71FiaANTNG/7onE8DaNaN//eEJ7WtITQDrgI3+tdwmgPX4RllMBf1xMfTHNgkhPk0UQIyhSH+cqCiAWF+R/nhtUQAx9yL9cRNPlIt9qT9+6cF+4xIPi0GrP46w/ljQ+uN564/Jrj+uvv7cCAHkt3AxRwlNOnJvjpIA8sykcwVtleUKcj3fU7GfjZjvye2cXUVvtKScXQHkXQsgd57+/IcB5LDUm4fUngDRmUuWpE/UmA/4M1mkLqdznCpSk5f7PHDM+r9fR271aDZzYJgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAqJZ/5vND2HdQ9r4AAAAASUVORK5CYII="></img>
       </div>
     </div>
   </div>
@@ -97,6 +113,8 @@ Client-side:
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/roslib.min.js"></script> <!-- rosbridge -->
+
+  <script src="js/virtualjoystick.js"></script> <!-- joystick -->
 
   <!-- Custom scripts -->
   <script src="js/main.js"></script> 
