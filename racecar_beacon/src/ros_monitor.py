@@ -10,6 +10,8 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 
 from tf.transformations import euler_from_quaternion
+
+
 class ROSMonitor:
     def __init__(self):
         # Subscribers

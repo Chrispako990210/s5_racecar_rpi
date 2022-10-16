@@ -384,39 +384,57 @@ void ctl(){
 
   }
   ///////////////////////////////////////////////////////
-  // else if (ctl_mode == 3){
-  //   // Low-level Position control
-  //   // Commands received in [m] setpoints
+  else if (ctl_mode == 3){
+    // Fully Open-Loop
+    // Commands received in [Volts] directly
+    dri_cmd    = dri_ref;
+    dri_pwm    = cmd2pwm( dri_cmd ) ;
     
-  //   float pos_ref, pos_error, pos_error_ddt;
+    // reset integral actions
+    vel_error_int = 0;
+    pos_error_int = 0 ;
 
-  //   //TODO: VOUS DEVEZ COMPLETEZ LE CONTROLLEUR SUIVANT
-  //   pos_ref       = dri_ref; 
-  //   pos_error     = 0; // TODO
-  //   pos_error_ddt = 0; // TODO
-  //   pos_error_int = 0; // TODO
+    // // Low-level Position control
+    // // Commands received in [m] setpoints
     
-  //   // Anti wind-up
-  //   if ( pos_error_int > pos_ei_sat ){
-  //     pos_error_int = pos_ei_sat;
-  //   }
+    // float pos_ref, pos_error, pos_error_ddt;
+
+    // //TODO: VOUS DEVEZ COMPLETEZ LE CONTROLLEUR SUIVANT
+    // pos_ref       = dri_ref; 
+    // pos_error     = 0; // TODO
+    // pos_error_ddt = 0; // TODO
+    // pos_error_int = 0; // TODO
     
-  //   dri_cmd = 0; // TODO
+    // // Anti wind-up
+    // if ( pos_error_int > pos_ei_sat ){
+    //   pos_error_int = pos_ei_sat;
+    // }
     
-  //   dri_pwm = cmd2pwm( dri_cmd ) ;
-  // }
+    // dri_cmd = 0; // TODO
+    
+    // dri_pwm = cmd2pwm( dri_cmd ) ;
+  }
   ///////////////////////////////////////////////////////
-  // else if (ctl_mode == 4){
-  //   // Reset encoder counts
+  else if (ctl_mode == 4){
+    // Fully Open-Loop
+    // Commands received in [Volts] directly
+    dri_cmd    = dri_ref;
+    dri_pwm    = cmd2pwm( dri_cmd ) ;
     
-  //   clearEncoderCount();
+    // reset integral actions
+    vel_error_int = 0;
+    pos_error_int = 0 ;
+
+    // // Reset encoder counts
     
-  //   // reset integral actions
-  //   vel_error_int = 0 ;
-  //   pos_error_int = 0 ;
+    // clearEncoderCount();
     
-  //   dri_pwm    = pwm_zer_dri ;
-  // }
+    // // reset integral actions
+    // vel_error_int = 0 ;
+    // pos_error_int = 0 ;
+    
+    // dri_pwm    = pwm_zer_dri ;
+  }
   ////////////////////////////////////////////////////////
   else {
     // reset integral actions

@@ -7,7 +7,11 @@ HOST = '127.0.0.1'  # ros_monitor adress
 # This process should listen to a different port than the PositionBroadcast client.
 PORT = 65432
 
-# Call possible : RPOS, OBSF et RBID
+format_dict = {
+    "RPOS": ">fff4x",
+    "OBSF": ">I12x",
+    "RBID": ">I12x"
+}
 
 format_dict = {
     "RPOS": ">fffxxxx",
