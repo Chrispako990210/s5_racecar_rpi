@@ -31,7 +31,7 @@ Client-side:
   <div class="collapse" id="navbarToggleExternalContent">
     <div class="bg-dark p-4">
       <h6 class="text-white h4">Connexion</h6>
-      <form>
+      <!-- <form>
         <div class="row">
           <div class="col-sm-3">
             <div class="form-group">
@@ -42,7 +42,18 @@ Client-side:
             <button type="submit" class="btn btn-primary" onclick="connectROS()">Connexion</button>
           </div>
         </div>
-      </form>
+      </form> -->
+      <div class="row">
+        <div class="col-md-2">
+          <div class="form-group">
+            <input type="IP" class="form-control" id="IPform" placeholder="Entrez l'adresse IP">
+          </div>
+        </div>
+        <div class="col">
+          <button type="button" class="btn btn-secondary" onclick="connectROS()">Connexion</button>
+          <button type="button" class="btn btn-secondary" onclick="disconnectROS()">Deconnexion</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -55,44 +66,73 @@ Client-side:
     <div class="col align-self-start">
       <h2 style="color: white">Racecar</h2>
     </div>
+    <div class="col-md-2 align-self-end">
+      <svg id="statusCircle" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16">
+        <circle cx="8" cy="8" r="8"/>
+      </svg>
+      <h4 id="connStatus"></h4>
+    </div>
   </nav>
   <!-- Menu END-->
 
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
     <script>
-      function avancer(){
-          var text = "En avant!\n";
-          document.getElementById("status").innerHTML += text;
-      } 
-      function arreter(){
-          var text = "Arret!\n";
-          document.getElementById("status").innerHTML += text;
-      } 
+      // function avancer(){
+      //     var text = "En avant!\n";
+      //     document.getElementById("status").innerHTML += text;
+      // } 
+      // function arreter(){
+      //     var text = "Arret!\n";
+      //     document.getElementById("status").innerHTML += text;
+      // } 
       function effacer(){
           var text = "";
           document.getElementById("status").innerHTML = text;
       }              
     </script>
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-4 " >
         <h1>Statut</h1>
         <textarea id="status" rows="10" ></textarea>
         <div>
             <button class="btn btn-dark" onclick='effacer()'>Effacer</button>
         </div>
         <h2>Contrôle</h2>
-        <div class="row">
-          <div class="col-md-12">
-                <button class="btn btn-dark" onclick='avancer()'>Avancer</button>          
-                <button class="btn btn-dark" onclick='arreter()'>Arreter</button>
+        <div class="row" style="padding-bottom: 5px;">
+          <div class="col-md-12" style="position:relative; left: 31px;">
+                <button class="btn btn-dark" onclick='avancer()' type="button" >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/>
+                  </svg>
+                </button>                        
           </div>
-      </div>
+        </div>
+        <div class="row">
+          <div class="col_md-12">
+            <button class="btn btn-dark" onclick='tourner_gauche()'>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+              </svg>
+            </button> 
+            <button class="btn btn-dark" onclick='reculer()'>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
+              </svg>
+            </button> 
+            <button class="btn btn-dark" onclick='tourner_droite()'>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/>
+              </svg>
+            </button> 
+          </div>
+        </div>        
     </div>
       <div class="col-md-8">
         <h1>Caméra</h1>      
           <div>
-            <img src="http://localhost:8080/stream?topic=/camera/rgb/image_raw" width="100%" height="50%">
+            <img id="image" src="https://chronicle.brightspotcdn.com/dims4/default/c5d06c4/2147483647/strip/true/crop/625x352+0+25/resize/1200x675!/quality/90/?url=http%3A%2F%2Fchronicle-brightspot.s3.amazonaws.com%2F89%2F74%2F4b46fe3effe1e4f0fa4ce534f383%2Fnothing-to-see-15a34a2fc727c8.jpg" 
+            width="70%" height="70%">
           </div>       
       </div>
     </div>
@@ -114,10 +154,14 @@ Client-side:
       var rbServer = null;
       var cmdVelTopic = null;
 
+      document.getElementById("connStatus").style.color = "red";
+      document.getElementById("connStatus").innerHTML = "Disconnected";
+      document.getElementById("connStatus").style.color = "red";
+
       //Some initializations after the page has been shown
-      $(document).ready(function(){
-        document.getElementById("log").value = 'Default text\n'
-      });
+      // $(document).ready(function(){
+      //   document.getElementById("log").value = 'Default text\n'
+      // });
 
       // Define some functions
       function connectROS() {
@@ -126,11 +170,12 @@ Client-side:
         var ip = document.getElementById("IPform").value;
         
         rbServer = new ROSLIB.Ros({
-          url : 'ws://' + ip + ':9090'
+          url : 'ws://'+ip+':9090'
         });
 
         rbServer.on('connection', function(){
             console.log('Connected to websocket server.');
+            document.getElementById("image").src = "http://localhost:8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed";
 
             // These lines create a topic object as defined by roslibjs
             cmdVelTopic = new ROSLIB.Topic({
@@ -138,15 +183,29 @@ Client-side:
                 name : '/racecar/cmd_vel_abtr_2',
                 messageType : 'geometry_msgs/Twist'
             });
+            document.getElementById("status").innerHTML = "Connected to " + ip +"\n";
+            document.getElementById("connStatus").style.color = "green";
+            document.getElementById("connStatus").innerHTML = "Connected";
 	    });
 
         rbServer.on('error', function(error) {
           console.log('Error connecting to websocket server: ', error);
+          document.getElementById("connStatus").style.color = "red";
+          document.getElementById("connStatus").innerHTML = "Disconnected";
 	    });
 
 	    rbServer.on('close', function() {
           console.log('Connection to websocket server closed.');
+          document.getElementById("status").innerHTML = "Disconnected \n";
+          document.getElementById("connStatus").style.color = "red";
+          document.getElementById("connStatus").innerHTML = "Disconnected";
 	    });
+      }
+
+      function disconnectROS() {
+        // This function disconnects from the rosbridge server
+        rbServer.close();
+        document.getElementById("image").src = "https://chronicle.brightspotcdn.com/dims4/default/c5d06c4/2147483647/strip/true/crop/625x352+0+25/resize/1200x675!/quality/90/?url=http%3A%2F%2Fchronicle-brightspot.s3.amazonaws.com%2F89%2F74%2F4b46fe3effe1e4f0fa4ce534f383%2Fnothing-to-see-15a34a2fc727c8.jpg";
       }
 
       // These lines create a message that conforms to the structure of the Twist defined in our ROS installation
@@ -163,6 +222,35 @@ Client-side:
                 z : 0.0
             }
       });
+
+      function avancer() {
+        if (rbServer.isConnected) {
+          var text = "En avant!\n";
+          document.getElementById("status").innerHTML += text;
+          twist.linear.x = 0.5;
+        }       
+      }
+      function reculer() {
+        if (rbServer.isConnected) {
+          var text = "En arriere!\n";
+          document.getElementById("status").innerHTML += text;
+          twist.linear.x = -0.5;
+        } 
+      }
+      function tourner_gauche() {
+        if (rbServer.isConnected) {
+          var text = "A gauche!\n";
+          document.getElementById("status").innerHTML += text;
+          twist.angular.z = 0.5;
+        }
+      }
+      function tourner_droite() {
+        if (rbServer.isConnected) {
+          var text = "A droite!\n";
+          document.getElementById("status").innerHTML += text;
+          twist.angular.z = -0.5;
+        }
+      }
 
       //Publishing loop cmd_vel at 5 Hz
       setInterval(function(){
