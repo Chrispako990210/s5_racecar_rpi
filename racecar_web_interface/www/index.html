@@ -1,18 +1,17 @@
 <!doctype html>
 <html>
+
 <!-- 
 ==References==
 Server-side:
 * http://docs.ros.org/indigo/api/roswww/html/
 * http://wiki.ros.org/web_video_server
 * http://wiki.ros.org/rosbridge_suite/Tutorials/RunningRosbridge
-
 Client-side:
 * http://wiki.ros.org/roslibjs/Tutorials/BasicRosFunctionality
 * https://getbootstrap.com/docs/4.0/getting-started/introduction/
 * https://getbootstrap.com/docs/4.0/layout/grid/
 -->
-
 
 <head>
     <!-- Required meta tags -->
@@ -23,72 +22,150 @@ Client-side:
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/dashboard.css">
 
-    <title>Laboratoire S5-GIF250</title>
+    <title>S5-GIF250-Interface web Racecar</title>
 </head>
 
+
 <body>
-
-
+    
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
-    <div class="bg-dark p-4">
-      <input  class="form-control" id="adressIP"  placeholder="Enter your IP adress">
-      <button onclick="connectROS()" class="btn btn-outline-success">Connexion</button>
-      
+    <div class="bg-dark p-4"> 
+      <h4 class="text-white h4">Configuration</h4>
+
+      <form>  
+        <label class="text-white h5" for="racecar_username">Inscrire le nom de l'usager:</label><br>
+        <input class="form-control mr-sm-2" type="text" id="racecar_username" autocomplete="off"><br>   <!-- placeholder="Inscrire le nom de l'usager" -->
+        <label class="text-white h5" for ="racecar_ip_adress">Inscrire l'adresse IP du Racecar:</label><br>
+        <input class="form-control mr-sm-2" type="text" id="racecar_ip_adress" autocomplete="off" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" placeholder="xxx.xxx.xxx.xxx"><br>    <!-- placeholder="Inscrire l'adresse IP du Racecar" -->
+      </form>
+
+      <button class="btn btn-outline-success my-2 my-sm-0 mt-5" type="submit" id="conn_btn" onclick="connectROS()">Connexion</button>
     </div>
   </div>
 
-
-  
-
- 
   <nav class="navbar navbar-dark bg-dark">
-    <div class="container-fluid"></div>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <h1 style="color: white "><strong>TONY'S RACECAR TELEOP WEBSITE </strong></h1>
+    <div class="row">
+      <div class="column">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+      
+      <div class="column"; style="padding-left:0 px">
+        <h1 style="color:white;">Racecar</h1>
+      </div>
     </div>
-    
   </nav>
+  <!-- Menu END-->
 
-  
-  <div>
-    <h1>Statut</h1>
-   </div>
-   
-<img style="width:300px;height:200px;" id="videoStream" src="http://localhost:8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed">   
-<canvas float=left id="canvas" name="game"></canvas>
-<!-- <p style="text-align: center;">
-  X: <span id="x_coordinate"> </span>
-  Y: <span id="y_coordinate"> </span>
-  Speed: <span id="speed"> </span> %
-  Angle: <span id="angle"> </span><br><br>
-  linear.X: <span id="x"> </span>
-  linear.Y: <span id="y"> </span>
-  linear.Z: <span id="z"> </span> 
-  Angle.X: <span id="ax"> </span>
-  Angle.Y: <span id="ay"> </span>
-  Angle.Z: <span id="az"> </span>
-</p> -->
+
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
+    
+    <div class="row">
+      <div class="col">
+
+        <h1>Information de connexion</h1>
+        <textarea id="console" autocomplete="off" rows="10" cols="60"></textarea><br>
+        <button class="btn btn-outline-danger" id="disconn_btn" onclick="disconnectROS()">Déconnexion</button>
+
+        
+      <div class="col">
+        <h1>Camera</h1>
+        <img width="320" height="240" id="videoStream" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAb1BMVEX///8AAACXl5fQ0NA4ODhMTEzt7e329vb8/PwuLi7n5+eioqLCwsJjY2OdnZ0FBQXR0dFGRkZ1dXVqamrZ2dkkJCS6urq0tLR7e3uqqqpVVVWGhoZdXV3f398UFBSRkZEdHR0YGBhQUFA9PT1wcHAuDD5UAAAD3UlEQVR4nO2daXuqMBBGibu4tHWtW7W2//833mqrNwPDAC6QTN7zSQnk4SgmJJKZKAIAAAAAAAAAAAAAAAAAAAAAAAAAAACETTxcjRs1MV42Ow+yWDVWXFXd5cjUzmR4v9/6XNM4uX33XbPblc193+T4Uk+DbO5s63RKsund7Lfr/68m5rxd4dZrdWNXsrlu7r3VJZLN+y1+rx+kjv5le+elJguRt/KCk2Qdf9vjOs6/AH3RJs0wXcVvQbf6cy/IVxm/LtfT/Rb1mRJHmBYXXLIVnItS165LrAr6ddr88aeyZrWnXJZiff8g6/BT4Udy42gwbNbEopHqtUYF/OJW5gf0U7pKbBrcfjPxEDrviROa5R6yFy6Bn2LaE667z3fII6Yt3zZn99lcEDTJLuSm24jHQ1sN+ZeY/MpThuR2+7sig1zI7yo1BrLIbSajnv1uXplBHh37tFqZu/WmnNTI/nzoZ/BaoUMOZKST1TYs2G9tQa4AUtMNN7rPwz5nfhzVXXN+0x69xiN7VL+sWELEbkDYH2Kylzvz0jwVEUO71XrQHNBjsNt4poWP2fHs347E8GC/cQl7QJe+rWlwfvPLvQExtPr7soOx52I38utE2Y4dDO2v5cTQep3dKNeCdWZtWkImYq5nb805eW7YTI0UTgzsXbw27LGD2SNtJH02ZCZiTLqb89ewy85ZT1PDPW8N+YkY5obHU0N+IoYd7vlpyE7EHPjxv4+G/ETMPuNQ/wyP7L9GrV3Wof4ZsgyyD1VheJQGQhoM5aGs/4ajnClP7w1z/xz23HCSf6jXhp9F5gN9Nszq4yn+GvYz+3iKt4bS7D7BU8N28clOPw3LTFf7aLgt9bemh4YlHwDzz/BY8lD/DNv5exNg6AgwFIChI8BQAIaOAEMBGDoCDAVg6AgwFIChI8BQAIaOAEMBGDoCDAVg6AgwFIChI8BQAIaOAEMBGDoCDAVg6AgwFIChI8BQAIaOEJSh/mcT9T9fGsAzwkb/c94mgGf1jf71FiaANTNG/7onE8DaNaN//eEJ7WtITQDrgI3+tdwmgPX4RllMBf1xMfTHNgkhPk0UQIyhSH+cqCiAWF+R/nhtUQAx9yL9cRNPlIt9qT9+6cF+4xIPi0GrP46w/ljQ+uN564/Jrj+uvv7cCAHkt3AxRwlNOnJvjpIA8sykcwVtleUKcj3fU7GfjZjvye2cXUVvtKScXQHkXQsgd57+/IcB5LDUm4fUngDRmUuWpE/UmA/4M1mkLqdznCpSk5f7PHDM+r9fR271aDZzYJgEAAAAAAAAAAAAAAAAAAAAAAAAAAAAqJZ/5vND2HdQ9r4AAAAASUVORK5CYII="></img>
+        <h2>Controle</h2>
+        <!-- Joystick-->
+        <canvas id="canvas" name="game"></canvas>
+      </div>
+    </div>
   </div>
-  
+
+
+  <!-- Modal BEGIN -->
+
+  <!-- Disconnexion modal -->
+  <div class="modal fade" id="Disconnection_modal" tabindex="-1" role="dialog" aria-labelledby="Disconnection_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Connexion state</h5>
+        </div>
+        <div class="modal-body">
+          <p id="disconn_msg"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connexion modal -->
+  <div class="modal fade" id="Connexion_modal" tabindex="-1" role="dialog" aria-labelledby="Connexion_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Connexion state</h5>
+        </div>
+        <div class="modal-body">
+          <p id="conn_msg"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Can't use arrows when disconnected modal -->
+  <div class="modal fade" id="no_arrows" tabindex="-1" role="dialog" aria-labelledby="no_arrows" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Attention</h5>
+        </div>
+        <div class="modal-body">
+          Vous ne pouvez pas utiliser les fleches lorsqu'une connexion n'est pas etablie
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal END -->
+
   <!-- Main layout END-->
-  
+
+
   <!-- JavaScript, import frameworks -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  
-  <!-- Custom scripts -->
   <script src="js/jquery-3.3.1.slim.min.js"></script>
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/roslib.min.js"></script> <!-- rosbridge -->
+
+  <script src="js/virtualjoystick.js"></script> <!-- joystick -->
+
+  <!-- Custom scripts -->
   <script src="js/joystickSim.js"></script>
   <script src="js/main.js"></script> 
 
-
-     
 </body>
 </html>
+Footer
+© 2022 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+s5_racecar_rpi/index.html at hugues_app1 · Chrispako990210/s5_racecar_rpi
