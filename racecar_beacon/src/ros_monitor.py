@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from email.policy import default
+from unittest import case
 import rospy
 import socket
 import threading
@@ -8,9 +10,7 @@ from struct import *
 
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
-
 from tf.transformations import euler_from_quaternion
-
 
 class ROSMonitor:
     def __init__(self):
@@ -18,6 +18,8 @@ class ROSMonitor:
         self.sub_odom = rospy.Subscriber("/odometry/filtered", Odometry, self.odom_cb)
         self.sub_laser = rospy.Subscriber("/scan", LaserScan, self.scan_cb)
 
+        self.sub_odom = rospy.Subscriber("Odometry/filtered", Odometry, self.odom_cb)
+        self.sub_scan = rospy.Subscriber("/scan", LaserScan, self.scan_cb)
         # Current robot state:
         self.id = 0xFFFF    #UINT32
         self.pos = (0,0,0)
@@ -55,6 +57,16 @@ class ROSMonitor:
     def RBID_response(self):
         RBID_format = ">Ixxxxxxxxxxxx"     # I = unint32, x = padding
         return pack(RBID_format, self.id)
+
+   
+
+    def odom_cb(self, data: Odometry):
+        print("Got msg from /odometry/filtered")
+        print("Pose: x = {}, y = {}, yaw = {}".format(data.pose.pose.position.x, data.pose.pose.position.y, quaternion_to_yaw(data.pose.pose.orientation)))
+
+    def scan_cb(self, data: LaserScan):
+        print("Got msg from /scan")
+        print("Ranges: {}".format(data.ranges))
 
     def rr_loop(self):
         # RemoteRequest thread (TCP)     

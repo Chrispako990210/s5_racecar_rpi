@@ -1,12 +1,12 @@
 <!doctype html>
 <html>
+
 <!-- 
 ==References==
 Server-side:
 * http://docs.ros.org/indigo/api/roswww/html/
 * http://wiki.ros.org/web_video_server
 * http://wiki.ros.org/rosbridge_suite/Tutorials/RunningRosbridge
-
 Client-side:
 * http://wiki.ros.org/roslibjs/Tutorials/BasicRosFunctionality
 * https://getbootstrap.com/docs/4.0/getting-started/introduction/
@@ -25,32 +25,39 @@ Client-side:
     <title>Racecar dashboard</title>
 </head>
 
+
 <body>
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
-    <div class="bg-dark p-4">
-      <h6 class="text-white h4">Connect to host IP:</h6>
-      <form class="form-inline">
-        <input class="form-control mr-sm-2" type="text" placeholder="IP address" id="ip_address">
-        <button class="btn btn-outline-success my-2 my-sm-0" id="conn_btn" onclick="connectROS()" type="submit">Connect</button>
-        <button class="btn btn-danger my-2 my-sm-0" type="submit" id="dcnn_btn" style="display: none;" disabled>Disconnect</button>
+    <div class="bg-dark p-4"> 
+      <h4 class="text-white h4">Configuration</h4>
+
+      <form>  
+        <label class="text-white h5" for="racecar_username">Inscrire le nom de l'usager:</label><br>
+        <input class="form-control mr-sm-2" type="text" id="racecar_username" autocomplete="off"><br>   <!-- placeholder="Inscrire le nom de l'usager" -->
+        <label class="text-white h5" for ="racecar_ip_adress">Inscrire l'adresse IP du Racecar:</label><br>
+        <input class="form-control mr-sm-2" type="text" id="racecar_ip_adress" autocomplete="off" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" placeholder="xxx.xxx.xxx.xxx"><br>    <!-- placeholder="Inscrire l'adresse IP du Racecar" -->
       </form>
+
+      <button class="btn btn-outline-success my-2 my-sm-0 mt-5" type="submit" id="conn_btn" onclick="connectROS()">Connexion</button>
     </div>
   </div>
 
   <nav class="navbar navbar-dark bg-dark">
     <div class="row">
-      <div class="col-2">
+      <div class="column">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
           <span class="navbar-toggler-icon"></span>
         </button>
       </div>
-        <div class="col align-start" style="margin-left: 5px;">
-          <h2 class="text-white h2">Racecar dashboard</h2>
-        </div>
+      
+      <div class="column"; style="padding-left:0 px">
+        <h1 style="color:white;">Racecar dashboard</h1>
+      </div>
     </div>
   </nav>
   <!-- Menu END-->
+
 
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
@@ -82,18 +89,21 @@ Client-side:
       </div>
     </div>
   </div>
+  <!-- Modal END -->
+
   <!-- Main layout END-->
-  
+
+
   <!-- JavaScript, import frameworks -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <script src="js/jquery-3.3.1.slim.min.js"></script>
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/roslib.min.js"></script> <!-- rosbridge -->
-  <script src="js/three.min.js"></script> <!-- threejs -->
-  <script src="js/threex.keyboardstate.js"></script>
 
   <!-- Custom scripts -->
-  <script src="js/racecar_main.js"></script>
+  <script src="js/joystickSim.js"></script>
+  <script src="js/racecar_main.js"></script> 
+
 </body>
 </html>
