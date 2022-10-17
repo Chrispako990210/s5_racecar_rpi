@@ -32,28 +32,24 @@ Client-side:
     <div class="bg-dark p-4"> 
       <h4 class="text-white h4">Configuration</h4>
 
-      <form>  
+      <form id="login">  
         <label class="text-white h5" for="racecar_username">Inscrire le nom de l'usager:</label><br>
         <input class="form-control mr-sm-2" type="text" id="racecar_username" autocomplete="off"><br>   <!-- placeholder="Inscrire le nom de l'usager" -->
         <label class="text-white h5" for ="racecar_ip_adress">Inscrire l'adresse IP du Racecar:</label><br>
-        <input class="form-control mr-sm-2" type="text" id="racecar_ip_adress" autocomplete="off" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" placeholder="xxx.xxx.xxx.xxx"><br>    <!-- placeholder="Inscrire l'adresse IP du Racecar" -->
+        <input class="form-control mr-sm-2" type="text" id="racecar_ip_adresse" autocomplete="off" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" placeholder="xxx.xxx.xxx.xxx"><br>    <!-- placeholder="Inscrire l'adresse IP du Racecar" -->
       </form>
-
-      <button class="btn btn-outline-success my-2 my-sm-0 mt-5" type="submit" id="conn_btn" onclick="connectROS()">Connexion</button>
+      <button class="btn btn-outline-success my-2 my-sm-0 mt-5" type="submit" form="login" id="conn_btn" onclick="connectROS()">Connexion</button>
     </div>
   </div>
 
   <nav class="navbar navbar-dark bg-dark">
     <div class="row">
       <div class="column">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent margin-right: 5px">
           <span class="navbar-toggler-icon"></span>
         </button>
       </div>
-      
-      <div class="column"; style="padding-left:0 px">
-        <h1 style="color:white;">Racecar dashboard</h1>
-      </div>
+        <h1 style="color:white;">Racecar Dashboard</h1>
     </div>
   </nav>
   <!-- Menu END-->
@@ -65,12 +61,13 @@ Client-side:
       <div class="col-md-auto">
         <div class="row" style="width: 200px;">
         <h3 style="margin: 5px">Status</h3>
-        <textarea id="log" title="Log" rows="10" cols="30" readonly style="margin-left: 5px;"></textarea>
-        <button type="button" class="btn btn-primary btn-lg" id="clear_button" onclick="eraseStatus()" style="margin: 5px;">Clear</button>
+        <textarea id="log" rows="10" cols="50" autocomplete="off" style="margin-left: 5px;"></textarea>
+        <button type="button" class="btn btn-primary btn-lg" id="clr_btn" onclick="eraseStatus()" style="margin: 5px;">Clear</button>
+        <button type="button" class="btn btn-outline-danger" id="dconn_btn" onclick="disconnectROS()" style="margin: 5px;">Deconnect</button>
+        <h3 style="margin: 5px">Control</h3>
+        <canvas id="canvas" width="200px" height="200px" name="game" style="margin: 5px;"></canvas>
         </div>
-        <div class="row" style="width: 200px;">
-          <h3 style="margin: 5px">Control</h3>
-        </div>
+      </div>
       <div class="col-md-auto">
         <nav>
           <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -89,6 +86,59 @@ Client-side:
       </div>
     </div>
   </div>
+  <!-- Main layout END-->
+  <!-- Modal BEGIN -->
+  <!-- Disconnexion modal -->
+  <div class="modal fade" id="Disconnection_modal" tabindex="-1" role="dialog" aria-labelledby="Disconnection_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Connexion state</h5>
+        </div>
+        <div class="modal-body">
+          <p id="disconn_msg"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connexion modal -->
+  <div class="modal fade" id="Connexion_modal" tabindex="-1" role="dialog" aria-labelledby="Connexion_modal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Connexion state</h5>
+        </div>
+        <div class="modal-body">
+          <p id="conn_msg"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Can't use arrows when disconnected modal -->
+  <div class="modal fade" id="no_arrows" tabindex="-1" role="dialog" aria-labelledby="no_arrows" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Attention</h5>
+        </div>
+        <div class="modal-body">
+          Vous ne pouvez pas utiliser le joystick lorsqu'une connexion n'est pas etablie
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal END -->
 
   <!-- Main layout END-->

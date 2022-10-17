@@ -59,7 +59,6 @@ class ROSMonitor:
         return pack(RBID_format, self.id)
 
    
-
     def odom_cb(self, data: Odometry):
         print("Got msg from /odometry/filtered")
         print("Pose: x = {}, y = {}, yaw = {}".format(data.pose.pose.position.x, data.pose.pose.position.y, quaternion_to_yaw(data.pose.pose.orientation)))

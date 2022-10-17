@@ -38,13 +38,10 @@
             // document.getElementById("angle").innerText = 0;
         });
 
-      
-
-
         var width, height, radius, x_orig, y_orig;
         function resize() {
             width = window.innerWidth;
-            heigth = window.innerHeight;
+            height = window.innerHeight;
             radius = width*0.05;
             height = radius* 6.5;
             ctx.canvas.width = width;
