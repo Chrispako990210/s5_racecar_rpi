@@ -27,33 +27,34 @@ Client-side:
 
 
 <body>
+  
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
-    <div class="bg-dark p-4"> 
-      <h4 class="text-white h4">Configuration</h4>
-
-      <form id="login">  
-        <label class="text-white h5" for="racecar_username">Inscrire le nom de l'usager:</label><br>
-        <input class="form-control mr-sm-2" type="text" id="racecar_username" autocomplete="off"><br>   <!-- placeholder="Inscrire le nom de l'usager" -->
-        <label class="text-white h5" for ="racecar_ip_adress">Inscrire l'adresse IP du Racecar:</label><br>
-        <input class="form-control mr-sm-2" type="text" id="racecar_ip_adresse" autocomplete="off" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$" placeholder="xxx.xxx.xxx.xxx"><br>    <!-- placeholder="Inscrire l'adresse IP du Racecar" -->
+    <div class="bg-dark p-4">
+      <h6 class="text-white h4">Connect to robot</h6>
+      <form class="form-inline">
+        <label for="username" class="text-white h5" style="margin: 5px;">Username:</label>
+        <input class="form-control mr-sm-2" type="text" placeholder="username" id="username">
+        <label for="robot_ip" class="text-white h5" style="margin: 5px;">Robot IP:</label>
+        <input class="form-control mr-sm-2" type="text" placeholder="XXX.XXX.XXX.XXX" id="ip_adresse">
+        <button class="btn btn-outline-success my-2 my-sm-0" id="conn_btn" onclick="connectROS()" type="submit">Connect</button>
       </form>
-      <button class="btn btn-outline-success my-2 my-sm-0 mt-5" type="submit" form="login" id="conn_btn" onclick="connectROS()">Connexion</button>
     </div>
   </div>
 
   <nav class="navbar navbar-dark bg-dark">
     <div class="row">
-      <div class="column">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent margin-right: 5px">
+      <div class="col-2">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
           <span class="navbar-toggler-icon"></span>
         </button>
       </div>
-        <h1 style="color:white;">Racecar Dashboard</h1>
+        <div class="col align-start" style="margin-left: 5px;">
+          <h2 class="text-white h2">Racecar dashboard</h2>
+        </div>
     </div>
   </nav>
   <!-- Menu END-->
-
 
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
@@ -87,6 +88,7 @@ Client-side:
     </div>
   </div>
   <!-- Main layout END-->
+  
   <!-- Modal BEGIN -->
   <!-- Disconnexion modal -->
   <div class="modal fade" id="Disconnection_modal" tabindex="-1" role="dialog" aria-labelledby="Disconnection_modal" aria-hidden="true">
