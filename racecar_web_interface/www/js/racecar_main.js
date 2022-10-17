@@ -15,8 +15,8 @@ $(document).ready(function(){
 // Define some functions
 function connectROS() {
   // This function connects to the rosbridge server
-  ip_addr = document.getElementById("racecar_ip_adresse").value;
-  user = document.getElementById("racecar_username").value;
+  ip_addr = document.getElementById("ip_adresse").value;
+  user = document.getElementById("username").value;
 
   rbServer = new ROSLIB.Ros({
       // Assuming ros server IP is 10.42.0.1
@@ -35,7 +35,6 @@ function connectROS() {
       $('#navbarToggleExternalContent').collapse('hide');
 
       document.getElementById("log").value += 'Connected to : ' + user + '@' + ip_addr + '\n';
-
 
       // These lines create a topic object as defined by roslibjs
       cmdVelTopic = new ROSLIB.Topic({
@@ -79,8 +78,8 @@ function connectROS() {
 function disconnectROS() {
   rbServer.close();
   document.getElementById("log").value += 'Disconnected from : ' + user + '@' + ip_addr + '\n';
-  document.getElementById("racecar_ip_adresse").value = '';
-  document.getElementById("racecar_username").value = '';
+  document.getElementById("ip_adresse").value = '';
+  document.getElementById("username").value = '';
   document.getElementById("camera_feed").src = 'icons/disconnected.png';
 
   document.getElementById("disconn_msg").innerHTML = 'Disconnected from : ' + user + '@' + ip_addr + '\n';
