@@ -60,12 +60,12 @@ const int dri_dir_pin     = 42; //
 
 //TODO: VOUS DEVEZ DETERMINEZ DES BONS PARAMETRES SUIVANTS
 const float filter_rc  =  0.1;
-const float vel_kp     =  10.0; 
-const float vel_ki     =  0.0; 
+const float vel_kp     =  100.0; 
+const float vel_ki     =  10.0; 
 const float vel_kd     =  0.0;
-const float pos_kp     =  1.0; 
-const float pos_kd     =  0.0;
-const float pos_ki     =  0.0; 
+const float pos_kp     =  15.0; 
+const float pos_kd     =  3.0;
+const float pos_ki     =  8.0; 
 const float pos_ei_sat =  10000.0; 
 
 // Loop period 
@@ -115,6 +115,21 @@ float vel_old   = 0;
 
 float vel_error_int = 0 ;
 float pos_error_int = 0;
+
+float int_max = 5.0; // Saturation integral a verifier
+float int_min = -5.0;
+float e_old = 0;
+float vel_raw_old = 0;
+float vel_error_der_old = 0;
+float pos_error_old = 0;
+
+float dt = 0.002;
+
+float alpha = 0.1;
+
+float vel_raw = 0;
+float vel_fil = 0;
+
 
 // Loop timing
 unsigned long time_now       = 0;
@@ -298,7 +313,9 @@ void cmdCallback ( const geometry_msgs::Twist&  twistMsg ){
 // Controller One tick
 ///////////////////////////////////////////////////////////////////
 void ctl(){
-  
+
+  float P, I, D;
+
   ///////////////////////////////////////////////
   // STEERING CONTROL
   /////////////////////////////////////////////// 
@@ -318,11 +335,11 @@ void ctl(){
   pos_now = (float) enc_now * tick2m;
   
   // Velocity computation
-
   //TODO: VOUS DEVEZ COMPLETEZ LA DERIVEE FILTRE ICI
-  float vel_raw = (enc_now - enc_old) * tick2m / time_period_low * 1000;
-  float alpha   = 0; // TODO
-  float vel_fil = vel_raw;    // Filter TODO
+  vel_raw = (enc_now - enc_old) * tick2m / time_period_low * 1000;
+  
+  vel_fil = alpha*vel_raw + (1-alpha)*vel_raw_old;    //Filtrer la dérivé de l'erreur
+  vel_raw_old = vel_fil;
   
   // Propulsion Controllers
   
@@ -347,93 +364,66 @@ void ctl(){
     vel_error_int = 0;
     pos_error_int = 0;
   }
-    else if (ctl_mode == 3 ){
-    // Fully Open-Loop
-    // Commands received in [Volts] directly
-    dri_cmd    = dri_ref;
-    dri_pwm    = cmd2pwm( dri_cmd );
-    
-    // reset integral actions
-    vel_error_int = 0;
-    pos_error_int = 0;
-  }
-    else if (ctl_mode == 4 ){
-    // Fully Open-Loop
-    // Commands received in [Volts] directly
-    dri_cmd    = dri_ref;
-    dri_pwm    = cmd2pwm( dri_cmd );
-    
-    // reset integral actions
-    vel_error_int = 0;
-    pos_error_int = 0;
-  }
   //////////////////////////////////////////////////////
   else if (ctl_mode == 2 ){
     // Low-level Velocity control
     // Commands received in [m/sec] setpoints
     
-    float vel_ref, vel_error;
-
-    //TODO: VOUS DEVEZ COMPLETEZ LE CONTROLLEUR SUIVANT
+    float vel_ref, vel_error, vel_error_der;
     vel_ref       = dri_ref; 
     vel_error     = vel_ref - vel_fil;
-    vel_error_int = 0; // TODO
-    dri_cmd       = vel_kp * vel_error; // proportionnal only
+
+    //Calculer la dérivé de l'erreur
+    vel_error_der = (vel_error - e_old)/dt;
+    //vel_error_der = alpha*vel_error_der + (1-alpha)*vel_error_der_old;    //Filtrer la dérivé de l'erreur
+    // vel_error_der_old = vel_error_der;
+    e_old = vel_error;
+
+    //Calculer l'intégrale de l'erreur
+    vel_error_int = vel_error_int + vel_error*dt;
+    
+    P = vel_kp * vel_error; // proportionnal
+    I = constrain(vel_ki * vel_error_int, int_min, int_max); // integral
+    D = vel_kd * vel_error_der; // derivative
+
+    dri_cmd = P+I+D;
     
     dri_pwm    = cmd2pwm( dri_cmd ) ;
 
   }
   ///////////////////////////////////////////////////////
   else if (ctl_mode == 3){
-    // Fully Open-Loop
-    // Commands received in [Volts] directly
-    dri_cmd    = dri_ref;
-    dri_pwm    = cmd2pwm( dri_cmd ) ;
+    // Low-level Position control
+    // Commands received in [m] setpoints
     
-    // reset integral actions
-    vel_error_int = 0;
-    pos_error_int = 0 ;
+    float pos_ref, pos_error, pos_error_ddt;
 
-    // // Low-level Position control
-    // // Commands received in [m] setpoints
+    //TODO: VOUS DEVEZ COMPLETEZ LE CONTROLLEUR SUIVANT
+    pos_ref       = dri_ref; 
+    pos_error     = 0; // TODO
+    pos_error_ddt = 0; // TODO
+    pos_error_int = 0; // TODO
     
-    // float pos_ref, pos_error, pos_error_ddt;
-
-    // //TODO: VOUS DEVEZ COMPLETEZ LE CONTROLLEUR SUIVANT
-    // pos_ref       = dri_ref; 
-    // pos_error     = 0; // TODO
-    // pos_error_ddt = 0; // TODO
-    // pos_error_int = 0; // TODO
+    // Anti wind-up
+    if ( pos_error_int > pos_ei_sat ){
+      pos_error_int = pos_ei_sat;
+    }
     
-    // // Anti wind-up
-    // if ( pos_error_int > pos_ei_sat ){
-    //   pos_error_int = pos_ei_sat;
-    // }
+    dri_cmd = 0; // TODO
     
-    // dri_cmd = 0; // TODO
-    
-    // dri_pwm = cmd2pwm( dri_cmd ) ;
+    dri_pwm = cmd2pwm( dri_cmd ) ;
   }
   ///////////////////////////////////////////////////////
   else if (ctl_mode == 4){
-    // Fully Open-Loop
-    // Commands received in [Volts] directly
-    dri_cmd    = dri_ref;
-    dri_pwm    = cmd2pwm( dri_cmd ) ;
+    // Reset encoder counts
+    
+    clearEncoderCount();
     
     // reset integral actions
-    vel_error_int = 0;
+    vel_error_int = 0 ;
     pos_error_int = 0 ;
-
-    // // Reset encoder counts
     
-    // clearEncoderCount();
-    
-    // // reset integral actions
-    // vel_error_int = 0 ;
-    // pos_error_int = 0 ;
-    
-    // dri_pwm    = pwm_zer_dri ;
+    dri_pwm    = pwm_zer_dri ;
   }
   ////////////////////////////////////////////////////////
   else {
@@ -449,6 +439,7 @@ void ctl(){
   set_pwm(dri_pwm);
   
   //Update memory variable
+  // REPOSITIONNER A LA BONNE PLACE
   enc_old = enc_now;
   vel_old = vel_fil;
 }
@@ -514,7 +505,7 @@ void loop(){
     
     // All-stop
     dri_ref  = 0;  // velocity set-point
-    ctl_mode = 2;  // closed-loop velocity mode
+    ctl_mode = 0;  // control mode
     
   }
 
