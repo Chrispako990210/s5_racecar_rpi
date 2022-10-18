@@ -32,30 +32,29 @@
             document.addEventListener('touchmove', Draw);
             window.addEventListener('resize', resize);
 
-            // document.getElementById("x_coordinate").innerText = 0;
-            // document.getElementById("y_coordinate").innerText = 0;
-            // document.getElementById("speed").innerText = 0;
-            // document.getElementById("angle").innerText = 0;
+            
         });
 
       
 
 
         var width, height, radius, x_orig, y_orig;
+        var coordHeight=3;
+        var coordWidth=2;
         function resize() {
             width = window.innerWidth;
             heigth = window.innerHeight;
-            radius = width*0.05;
+            radius = 50;
             height = radius* 6.5;
             ctx.canvas.width = width;
             ctx.canvas.height = height;
             background();
-            joystick(width / 8, height / 3);
+            joystick(width / coordWidth, height / coordHeight);
         }
 
         function background() {
-            x_orig = width / 8;
-            y_orig = height / 3;
+            x_orig = width / coordWidth;
+            y_orig = height / coordHeight;
 
             ctx.beginPath();
             ctx.arc(x_orig, y_orig, radius + 20, 0, Math.PI * 2, true);
@@ -79,8 +78,8 @@
         function getPosition(event) {
             var mouse_x = event.clientX || event.touches[0].clientX;
             var mouse_y = event.clientY || event.touches[0].clientY;
-            coord.x = mouse_x - canvas.offsetLeft;
-            coord.y = mouse_y - canvas.offsetTop;
+            coord.x = mouse_x - (canvas.offsetTop);
+            coord.y = mouse_y - (canvas.offsetLeft);
         }
 
         function is_it_in_the_circle() {
@@ -129,7 +128,7 @@
             paint = false;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             background();
-            joystick(width / 8, height / 3);
+            joystick(width / coordWidth, height / coordHeight);
             // document.getElementById("x_coordinate").innerText = 0;
             // document.getElementById("y_coordinate").innerText = 0;
             // document.getElementById("speed").innerText = 0;
