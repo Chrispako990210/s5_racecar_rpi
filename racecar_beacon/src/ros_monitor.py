@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from email.policy import default
+from unittest import case
 import rospy
 import socket
 import threading
@@ -8,16 +10,26 @@ from struct import *
 
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
-
 from tf.transformations import euler_from_quaternion
 
 
+
+
+
+def quaternion_to_yaw(quat):
+# Uses TF transforms to convert a quaternion to a rotation angle around Z.
+# Usage with an Odometry message: 
+#   yaw = quaternion_to_yaw(msg.pose.pose.orientation)
+    (roll, pitch, yaw) = euler_from_quaternion([quat.x, quat.y, quat.z, quat.w])
+    return yaw
 class ROSMonitor:
     def __init__(self):
         # Subscribers
         self.sub_odom = rospy.Subscriber("/odometry/filtered", Odometry, self.odom_cb)
         self.sub_laser = rospy.Subscriber("/scan", LaserScan, self.scan_cb)
 
+        self.sub_odom = rospy.Subscriber("Odometry/filtered", Odometry, self.odom_cb)
+        self.sub_scan = rospy.Subscriber("/scan", LaserScan, self.scan_cb)
         # Current robot state:
         self.id = 0xFFFF    #UINT32
         self.pos = (0,0,0)
@@ -30,100 +42,67 @@ class ROSMonitor:
 
         # Thread for RemoteRequest handling and PositionBroadcast handling:
         self.rr_thread = threading.Thread(target=self.rr_loop)
-        self.pb_thread = threading.Thread(target=self.pb_loop)
 
-        # Start the threads:
-        self.rr_thread.start()
-        self.pb_thread.start()
+        print("ROSMonitor started.")
 
-        print("ROSMonitor started!")
+   
 
     def odom_cb(self, data: Odometry):
-        self.pos = (data.pose.pose.position.x, data.pose.pose.position.y, data.pose.pose.position.z)
-        #self.pos = (data.pose.pose.position.x, data.pose.pose.position.y, self.quaternion_to_yaw(data.pose.pose.orientation))
+        print("Got msg from /odometry/filtered")
+        print("Pose: x = {}, y = {}, yaw = {}".format(data.pose.pose.position.x, data.pose.pose.position.y, quaternion_to_yaw(data.pose.pose.orientation)))
 
     def scan_cb(self, data: LaserScan):
-        self.obstacle = min(data.ranges) <= 1.0
-
-        # if (data.ranges >= 1):    # Check if that works
-        #     self.obstacle = True
-        # else:
-        #     self.obstacle = False
-
-    def RPOS_response(self):
-        RPOS_format = ">fff4x"                # > = big-endien, f = float32 (4 octets), x = padding (1 octets) 
-        msg2send = pack(RPOS_format, self.pos[0], self.pos[1], self.pos[2])
-        return msg2send
-
-    def OBSF_response(self):
-        OBSF_format = ">I12x"     # I = unint32, x = padding
-        msg2send = pack(OBSF_format, self.obstacle)
-        return msg2send
-
-    def RBID_response(self):
-        RBID_format = ">I12x"     # I = unint32, x = padding
-        msg2send = pack(RBID_format, self.id)
-        return msg2send
-
-    # def invalid_response(self):
-    #     # invalid_format = ">1s15x"
-    #     # msg2send = pack(invalid_format, "Invalid command")  # See if it works
-    #     return "->Invalid command, try again".encode("utf8")
+        print("Got msg from /scan")
+        print("Ranges: {}".format(data.ranges))
 
     def rr_loop(self):
-        # RemoteRequest thread (TCP)
-        dict_format = {
-            "RPOS": self.RPOS_response,
-            "OBSF": self.OBSF_response,
-            "RBID": self.RBID_response
+        HOST = '127.0.0.1'
+        PORT = 65432
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((HOST, PORT))
+
+        s.listen(1)
+        (conn, addr) = s.accept() # returns new socket and addr. client
+        while True: # forever
+            data = conn.recv(1024) # receive data from client
+            print(data)
+            if not data: break # stop if client stopped
+            conn.send(data) # return sent data plus an "*"
+        conn.close() # close the connection
+
+    def send_pos(self):
+        # Send the current position to the remote request port.
+        # Return a string with the current position.
+        return "message sended"
+
+    def send_obs(self):
+        # Send the current obstacle state to the remote request port.
+        # Return a string with the current obstacle state.
+        return "message sended"
+    
+    def send_id(self): 
+        # Send the current id to the remote request port.
+        # Return a string with the current id.
+        return "message sended"
+
+    def read_cmd(self,data):
+        # Read a command from the remote request port.
+        # Return a string with the command.
+        return data.decode('ascii')
+
+    def associated_msg_cmd(self, msg):
+        # Send a message to the remote request port.
+        # Return a string with the message.
+        
+        switch={
+            'RPOS': self.send_pos(),
+            'OBSF': self.send_obs(),
+            'RFBID': self.send_id(),
         }
+        return switch.get(data_decode, "Invalid message")
 
-        # Init your socket here :
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as rr_socket:  # AF_INET = IPv4, SOCK_STREAM = TCP
-            rr_socket.bind((self.HOST, self.remote_request_port))
-            while True:
-                rr_socket.listen(1)
-                (conn, addr) = rr_socket.accept()
-
-                with conn:
-                    print("Connected by : ", addr)
-                    try:
-                        while True:
-                            data = conn.recv(16)
-                            if not data:
-                                break
-
-                            decoded_cmd = data.decode("ASCII")
-                            print("Commande received from client : ", decoded_cmd)
-
-                            if decoded_cmd not in dict_format:
-                                conn.send("ERROR".encode("ASCII"))
-                            else:
-                                conn.send(dict_format.get(decoded_cmd)())
-
-                    except KeyboardInterrupt:
-                        print("KeyboardInterrupt")
-                        conn.close()
-                        break
-                    conn.close()
-
-
-    def pb_loop(self):
-        # PositionBroadcast thread (UDP)
-        broadcast_adresss = "127.0.0.255"
-        format = ">fffI"    # f = float32, I = unint32
-
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as pb_socket:  # AF_INET = IPv4, SOCK_DGRAM = UDP
-            pb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)  # Enable broadcasting mode
-            # pb_socket.bind((broadcast_adresss, self.pos_broadcast_port))
-
-            while True:
-                # print("Broadcasting from ROSMonitor")
-                msg2send = pack(format, self.pos[0], self.pos[1], self.pos[2], self.id)
-                print(unpack(format, msg2send))
-                # pb_socket.send(msg2send)
-                pb_socket.sendto(msg2send, (broadcast_adresss, self.pos_broadcast_port))
-                time.sleep(1)
+        
 
 
     def quaternion_to_yaw(self, quat):
