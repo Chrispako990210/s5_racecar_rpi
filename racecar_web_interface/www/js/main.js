@@ -9,7 +9,7 @@ var racecar_username = null;
 var direction = null;   // 'foward', 'backward', 'left', 'right' with arrows
 
 document.getElementById("connStatus").style.color = "red";
-document.getElementById("connStatus").innerHTML = "Disconnected";
+document.getElementById("connStatus").innerHTML = "Déconnecté";
 document.getElementById("statusIcon").style.fill = "red";
 
 var flag_connected = false;
@@ -61,7 +61,7 @@ function connectROS() {
         });
 
         document.getElementById("connStatus").style.color = "green";
-        document.getElementById("connStatus").innerHTML = "Connected";
+        document.getElementById("connStatus").innerHTML = "Connecté";
         document.getElementById("statusIcon").style.fill = "green";
 
     });
@@ -71,7 +71,7 @@ function connectROS() {
         flag_connected = false;
         console.log('Error connecting to websocket server: ', error);
         document.getElementById("connStatus").style.color = "red";
-        document.getElementById("connStatus").innerHTML = "Disconnected";
+        document.getElementById("connStatus").innerHTML = "Déconnecté";
         document.getElementById("statusIcon").style.fill = "red";
     });
 
@@ -80,7 +80,7 @@ function connectROS() {
         flag_connected = false;
         console.log('Connection to websocket server closed');
         document.getElementById("connStatus").style.color = "red";
-        document.getElementById("connStatus").innerHTML = "Disconnected";
+        document.getElementById("connStatus").innerHTML = "Déconnecté";
         document.getElementById("statusIcon").style.fill = "red";
     });
 }
