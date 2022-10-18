@@ -22,7 +22,7 @@ Client-side:
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/dashboard.css">
 
-    <title>Racecar dashboard</title>
+    <title>Racecar tableau de bord</title>
 </head>
 
 
@@ -31,12 +31,12 @@ Client-side:
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
     <div class="bg-dark p-4">
-      <h6 class="text-white h4">Connect to robot</h6>
+      <h6 class="text-white h4">Configuration</h6>
       <form>
-        <label for="username" class="text-white h5" style="margin: 5px;">Username:</label>
-        <input class="form-control mr-sm-2" type="text" placeholder="username" id="username">
-        <label for="robot_ip" class="text-white h5" style="margin: 5px;">Robot IP:</label>
-        <input class="form-control mr-sm-2" type="text" placeholder="XXX.XXX.XXX.XXX" id="ip_adresse">
+        <label for="username" class="text-white h5" style="margin: 5px;">Inscrire le nom de l'usager :</label>
+        <input class="form-control mr-sm-2" type="text" placeholder="username" id="racecar_username">
+        <label for="robot_ip" class="text-white h5" style="margin: 5px;">Inscrire l'adresse IP du Racecar :</label>
+        <input class="form-control mr-sm-2" type="text" placeholder="XXX.XXX.XXX.XXX" id="racecar_ip_adress">
       </form>
 
       <button class="btn btn-outline-success my-2 my-sm-0 mt-5" type="submit" id="conn_btn" onclick="connectROS()">Connexion</button>
@@ -75,35 +75,18 @@ Client-side:
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-auto">
-        <div class="row" style="width: 200px;">
-        <h3 style="margin: 5px">Status</h3>
-        <textarea id="log" rows="10" cols="50" autocomplete="off" style="margin-left: 5px;"></textarea>
-        <button type="button" class="btn btn-primary btn-lg" id="clr_btn" onclick="eraseStatus()" style="margin: 5px;">Clear</button>
-        <button type="button" class="btn btn-outline-danger" id="dconn_btn" onclick="disconnectROS()" style="margin: 5px;">Deconnect</button>
-        <h3 style="margin: 5px">Control</h3>
-        <canvas id="canvas" width="200px" height="200px" name="game" style="margin: 5px;"></canvas>
-        </div>
+        <h1>Statut</h1>
+        <h4 id='console'>Non connecté</h4><br>
       </div>
-      <div class="col-md-auto">
-        <nav>
-          <div class="nav nav-tabs" id="nav-tab" role="tablist">
-            <button class="nav-link active" id="camera" data-toggle="tab" data-target="#nav-camera" type="button" role="tab" aria-controls="nav-profil" aria-selected="true">Camera</button>
-            <button class="nav-link" id="lidar" data-toggle="tab" data-target="#nav-lidar" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Lidar</button>
-          </div>
-        </nav>  
-        <div class="tab-content" id="nav-tabContent">
-          <div class="tab-pane fade show active" id="nav-camera" role="tabpanel" aria-labelledby="nav-camera-tab">
-            <img id="camera_feed">
-          </div>
-          <div class="tab-pane fade" id="nav-lidar" role="tabpanel" aria-labelledby="nav-lidar-tab">
-            <img id="lidar_feed">
-          </div>
-        </div>        
+      <div class="col-md-auto" style=width:320px; height:240px>
+        <h1>Caméra</h1>
+        <img width="320" height="240" id="videoStream" src="icons/no_camera.png"></img>
+        <h1>Contrôle</h1>
+        <canvas id="canvas" name="game"> </canvas>
       </div>
     </div>
   </div>
   <!-- Main layout END-->
-
   <!-- Modal BEGIN -->
   <!-- Disconnexion modal -->
   <div class="modal fade" id="Disconnection_modal" tabindex="-1" role="dialog" aria-labelledby="Disconnection_modal" aria-hidden="true">
@@ -127,13 +110,13 @@ Client-side:
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Connexion state</h5>
+          <h5 class="modal-title">État de connexion</h5>
         </div>
         <div class="modal-body">
           <p id="conn_msg"></p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
         </div>
       </div>
     </div>
