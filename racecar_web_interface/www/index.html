@@ -38,20 +38,35 @@ Client-side:
         <label for="robot_ip" class="text-white h5" style="margin: 5px;">Robot IP:</label>
         <input class="form-control mr-sm-2" type="text" placeholder="XXX.XXX.XXX.XXX" id="ip_adresse">
       </form>
-      <button class="btn btn-outline-success my-2 my-sm-0 mt-5" id="conn_btn" onclick="connectROS()" type="submit">Connect</button>
+
+      <button class="btn btn-outline-success my-2 my-sm-0 mt-5" type="submit" id="conn_btn" onclick="connectROS()">Connexion</button>
+      
     </div>
   </div>
 
   <nav class="navbar navbar-dark bg-dark">
     <div class="row">
-      <div class="col-2">
+      <div class="col">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
           <span class="navbar-toggler-icon"></span>
         </button>
       </div>
-        <div class="col align-start" style="margin-left: 5px;">
-          <h2 class="text-white h2">Racecar dashboard</h2>
+      
+      <div class="col"; style="padding-left:0 px">
+        <h2 style="color:white;">Racecar</h2>
+      </div>
+      
+    </div>
+    <div class="col-md-3 self-align-end">
+      <div class="row">
+        <svg  width="16" height="30"  class="bi bi-circle-fill" viewBox="0 0 16 16">
+          <circle id="statusIcon" cx="8" cy="9" r="8"/>
+        </svg>
+        <h4 id="connStatus" style="padding-left: 5px;"></h4>
+        <div class="col self-align-end">
+          <button class="btn btn-outline-light" id="disconn_btn" onclick="disconnectROS()">Déconnexion</button>  
         </div>
+      </div>
     </div>
   </nav>
   <!-- Menu END-->
@@ -159,3 +174,5 @@ Client-side:
 
 </body>
 </html>
+
+© 2022 racecar UdeS
