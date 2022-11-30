@@ -1,8 +1,8 @@
 <!-- -->
 <launch>
   <arg name="prefix" default="racecar"/>
-  <arg name="localization" default="false"/> 
-  <arg name="database_path" default="~/.ros/rtabmap_$(arg prefix).db"/> 
+  <arg name="localization" default="true"/> 
+  <arg name="database_path" default="$(find racecar_behaviors)/maps/tunnel_genie.db"/> 
   <arg name="odom_correction" default="true"/> 
   
   <arg     if="$(arg localization)" name="rtabmap_args" value="--Mem/IncrementalMemory false"/>
