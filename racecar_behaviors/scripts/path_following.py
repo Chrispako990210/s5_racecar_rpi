@@ -10,7 +10,7 @@ from nav_msgs.msg import Odometry
 class PathFollowing:
     def __init__(self):
         self.max_speed = rospy.get_param('~max_speed', 1)
-        self.max_steering = rospy.get_param('~max_steering', 0.37)
+        self.max_steering = rospy.get_param('~max_steering', 0.37) # Peut etre a modifier
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
         self.scan_sub = rospy.Subscriber('scan', LaserScan, self.scan_callback, queue_size=1)
         self.odom_sub = rospy.Subscriber('odom', Odometry, self.odom_callback, queue_size=1)

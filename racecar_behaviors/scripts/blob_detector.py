@@ -66,6 +66,7 @@ class BlobDetector:
         
         self.image_pub = rospy.Publisher('image_detections', Image, queue_size=1)
         self.object_pub = rospy.Publisher('object_detected', String, queue_size=1)
+        self.object_pose_pub = rospy.Publisher('object_pose', Quaternion, queue_size=1) # publish the pose of the object in the base_link frame
         
         self.image_sub = message_filters.Subscriber('image', Image)
         self.depth_sub = message_filters.Subscriber('depth', Image)
@@ -168,6 +169,13 @@ class BlobDetector:
             distance = np.linalg.norm(transBase[0:2])
             angle = np.arcsin(transBase[1]/transBase[0])
             
+            # Publish object pose in map frame
+            obj_pose = Quaternion()
+            obj_pose.x = distance
+            obj_pose.y = 0.0
+            obj_pose.z = 0.0
+            obj_pose.w = angle*180/np.pi
+            # self.object_pub.publish(obj_pose) # signal that an object has been detected
             rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
 
         # debugging topic

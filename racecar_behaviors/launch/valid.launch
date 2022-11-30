@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="localization" default="true"/>
+
+  <include file="$(find racecar_gazebo)/launch/racecar_tunnel_genie.launch"></include>
+  <include file="$(find racecar_navigation)/launch/slam.launch">
+    <arg name="localization" value="$(arg localization)"/>
+    <arg name="database_path" value="$(find racecar_behaviors)/maps/tunnel_genie.db"/>
+  </include>
+  
+  <include file="$(find racecar_navigation)/launch/rviz.launch"></include>
+
+</launch>

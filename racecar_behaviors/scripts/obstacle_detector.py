@@ -3,7 +3,7 @@
 import rospy
 import math 
 import numpy as np
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Quaternion
 from sensor_msgs.msg import LaserScan
 
 class ObstacleDetector:
@@ -11,6 +11,7 @@ class ObstacleDetector:
         self.distance = rospy.get_param('~distance', 0.75)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
         self.scan_sub = rospy.Subscriber('scan', LaserScan, self.scan_callback, queue_size=1)
+        self.obj_pose_sub = rospy.Subscriber('object_pose', Quaternion, self.obj_pose_callback, queue_size=1)
 
     def scan_callback(self, msg):
     
@@ -28,7 +29,12 @@ class ObstacleDetector:
                 
         if obstacleDetected:
             self.cmd_vel_pub.publish(Twist()); # zero twist  
-            rospy.loginfo("Obstacle detected! Stop!")      
+            rospy.loginfo("Obstacle detected! Stop!")    
+            
+    def obj_pose_callback(self, msg: Quaternion):
+        flag = False
+        # TODO: utiliser la pos de l'objet pour le path planning jusqu'a X cm du ballon
+        
 
 def main():
     rospy.init_node('obstacle_detector')

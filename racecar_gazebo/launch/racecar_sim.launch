@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="localization" default="true"/>
+
+  <include file="$(find racecar_gazebo)/launch/racecar_tunnel_genie.launch"></include>
+  <include file="$(find racecar_navigation)/launch/slam.launch">
+    <arg name="localization" value="$(arg localization)"/> 
+  </include>
+
+  <include file="$(find racecar_navigation)/launch/navigation.launch" if="$(arg localization)"></include>
+  <include file="$(find racecar_navigation)/launch/rviz.launch"></include>
+
+</launch>
