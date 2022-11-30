@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 import rospy
-import math 
-import numpy as np
+import actionlib
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+
+from goal import Goal
 
 class PathFollowing:
     def __init__(self):
@@ -14,6 +16,36 @@ class PathFollowing:
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
         self.scan_sub = rospy.Subscriber('scan', LaserScan, self.scan_callback, queue_size=1)
         self.odom_sub = rospy.Subscriber('odom', Odometry, self.odom_callback, queue_size=1)
+        self.goals_sub = rospy.Subscriber('goal', Goal, self.goals_planning_callback, queue_size=1)
+
+        self.client = actionlib.SimpleActionClient('move_base_',MoveBaseAction)
+        # Waits until the action server has started up and started listening for goals.
+        self.client.wait_for_server()
+
+        self.goals_queue = []
+        self.end_goal = Goal("end_goal", 0, 0, 0, 0)
+        self.start_goal = Goal("start_goal", 0, 0, 0, 0)
+
+    def movebase_client(self, x, y, theta):
+        # Creates a new goal with the MoveBaseGoal constructor
+        goal = MoveBaseGoal()
+        goal.target_pose.header.frame_id = "map"
+        goal.target_pose.header.stamp = rospy.Time.now() 
+        goal.target_pose.pose.position.x = x
+        goal.target_pose.pose.position.y = y
+        goal.target_pose.pose.orientation.w = theta
+
+        # Sends the goal to the action server.
+        self.client.send_goal(goal)
+        # Waits for the server to finish performing the action.
+        wait = self.client.wait_for_result()
+        # If the result doesn't arrive, assume the Server is not available
+        if not wait:
+            rospy.logerr("Action server not available!")
+            rospy.signal_shutdown("Action server not available!")
+        else:
+        # Result of executing the action
+            return self.client.get_result() 
 
     def scan_callback(self, msg):
         # Because the lidar is oriented backward on the racecar, 
@@ -25,10 +57,13 @@ class PathFollowing:
         twist.linear.x = self.max_speed
         twist.angular.z = 0
            
-        self.cmd_vel_pub.publish(twist);
+        self.cmd_vel_pub.publish(twist)
         
     def odom_callback(self, msg):
         rospy.loginfo("Current speed = %f m/s", msg.twist.twist.linear.x)
+
+    def goals_planning_callback(self, msg):
+        return None
 
 def main():
     rospy.init_node('path_following')

@@ -1,14 +1,12 @@
 <!-- -->
 <launch>
   <arg name="prefix"        default="racecar"/>
-  <arg name="cmd_vel_topic" default="cmd_vel_abtr_5"/>
   <arg name="odom_topic"    default="odom"/>
   <arg name="use_sim_time"  default="false"/>
    
   <param if="$(arg use_sim_time)" name="use_sim_time" value="true"/>
  
   <group ns="$(arg prefix)">
-
     <!-- Navigation -->
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
       <remap from="scan" to="scan"/>
@@ -36,9 +34,10 @@
 
       <param name="clearing_rotation_allowed" value="false" /> <!-- Our carlike robot is not able to rotate in place -->
 
-      <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+      <remap from="cmd_vel" to="cmd_vel_abtr_5"/>
       <remap from="/odom" to="$(arg odom_topic)"/>
     </node>
+
          
   </group>
   
