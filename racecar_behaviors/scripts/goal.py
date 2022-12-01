@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseStamped
 
 class Goal:
-    def __init__(self, name: str, coord: Pose):
-        self.x = coord.position.x
-        self.y = coord.position.y
-        self.w = coord.orientation.z
+    def __init__(self, name: str, coord: PoseStamped, wait_time: int):
+        self.pose = coord
         self.name = name
         self.atGoal = False
+        self.wait_time = wait_time
         if "ballon" in name:
             self.picture_name = f'{name}.png'
             self.path_name = f'path_{name}.bmp'

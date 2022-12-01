@@ -8,7 +8,7 @@
  
   <group ns="$(arg prefix)">
     <!-- Navigation -->
-    <node pkg="move_base" type="move_base" respawn="false" name="move_base_vagabon" output="screen">
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
       <remap from="scan" to="scan"/>
       <remap from="map" to="map"/>
 
@@ -23,7 +23,7 @@
       <rosparam file="$(find racecar_navigation)/config/global_costmap_params.yaml" command="load" />
       <rosparam file="$(find racecar_navigation)/config/teb_local_planner_params.yaml" command="load" />
       <rosparam file="$(find racecar_navigation)/config/global_planner_params.yaml" command="load" />
-
+      
       <param name="base_global_planner" value="global_planner/GlobalPlanner" />
       <param name="planner_frequency" value="1.0" />
       <param name="planner_patience" value="5.0" />
@@ -38,37 +38,6 @@
       <remap from="/odom" to="$(arg odom_topic)"/>
     </node>
 
-    <node pkg="move_base" type="move_base" respawn="false" name="move_base_ballon" output="screen">
-      <remap from="scan" to="scan"/>
-      <remap from="map" to="map"/>
-
-      <param name="global_costmap/global_frame" value="$(arg prefix)/map"/>
-      <param name="global_costmap/robot_base_frame" value="$(arg prefix)/base_footprint"/>
-      <param name="local_costmap/global_frame" value="$(arg prefix)/odom"/>
-      <param name="local_costmap/robot_base_frame" value="$(arg prefix)/base_footprint"/>
-    
-      <rosparam file="$(find racecar_navigation)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-      <rosparam file="$(find racecar_navigation)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-      <rosparam file="$(find racecar_navigation)/config/local_costmap_params.yaml" command="load" />
-      <rosparam file="$(find racecar_navigation)/config/global_costmap_params.yaml" command="load" />
-      <rosparam file="$(find racecar_navigation)/config/teb_local_planner_params.yaml" command="load" />
-      <rosparam file="$(find racecar_navigation)/config/global_planner_params.yaml" command="load" />
-
-      <param name="base_global_planner" value="global_planner/GlobalPlanner" />
-      <param name="planner_frequency" value="1.0" />
-      <param name="planner_patience" value="5.0" />
-
-      <param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
-      <param name="controller_frequency" value="5.0" />
-      <param name="controller_patience" value="15.0" />
-
-      <param name="clearing_rotation_allowed" value="false" /> <!-- Our carlike robot is not able to rotate in place -->
-
-      <remap from="cmd_vel" to="cmd_vel_abtr_4"/>
-      <remap from="/odom" to="$(arg odom_topic)"/>
-    </node>
-
-         
   </group>
   
 </launch>
