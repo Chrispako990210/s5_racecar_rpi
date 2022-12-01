@@ -21,6 +21,7 @@ class BlobDetector:
         self.map_frame_id = rospy.get_param('~map_frame_id', 'map')
         self.frame_id = rospy.get_param('~frame_id', 'base_link')
         self.object_frame_id = rospy.get_param('~object_frame_id', 'object')
+        self.goal_frame_id = rospy.get_param('~goal_frame_id', 'goal')
         self.color_hue = rospy.get_param('~color_hue', 100) # 160=purple, 100=blue, 10=Orange
         self.color_range = rospy.get_param('~color_range', 30) 
         self.color_saturation = rospy.get_param('~color_saturation',30) 
@@ -179,7 +180,8 @@ class BlobDetector:
                 rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
                 goal = self.compute_goal(transMap, angle)
                 self.blob_publisher.publish(goal)
-                
+
+            goal = self.compute_goal(transMap, angle)  
             # self.object_pose_pub.publish(obj_pose) # signal that an object has been detected
             #rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
 
@@ -204,17 +206,23 @@ class BlobDetector:
 
     def format_goal(self, x, y, theta):
         goal = PoseStamped()
-        goal.header.frame_id = self.map_frame_id
+        goal.header.frame_id = self.goal_frame_id
         goal.header.stamp = rospy.Time.now()
         goal.pose.position.x = x
         goal.pose.position.y = y
         goal.pose.position.z = 0.0
         q = tf.transformations.quaternion_from_euler(0, 0, theta)
+
+        self.br.sendTransform((x,y,0.0) , q,
+                    goal.header.stamp,
+                    self.goal_frame_id,
+                    self.object_frame_id) 
+
         goal.pose.orientation.x = q[0]
         goal.pose.orientation.y = q[1]
         goal.pose.orientation.z = q[2]
         goal.pose.orientation.w = q[3]
-        rospy.loginfo("Goal: %f %f %f %f %f %f ", x, y, theta,q[0], q[1], q[2], q[3])
+        rospy.loginfo("Goal: %f %f %f %f %f %f %f ", x, y, theta,q[0], q[1], q[2], q[3])
         return goal
 
 
@@ -222,7 +230,7 @@ class BlobDetector:
         x_blob=transMap[0]+1.5*np.sin(angle)
         y_blob=transMap[1]+1.5*np.cos(angle)
         angle_world=-180+angle
-        return format_goal(x_blob,y_blob,angle_world)
+        return self.format_goal(x_blob,y_blob,angle_world)
 
         
 
