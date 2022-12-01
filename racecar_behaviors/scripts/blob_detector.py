@@ -10,7 +10,7 @@ from racecar_behaviors.cfg import BlobDetectorConfig
 from dynamic_reconfigure.server import Server
 from std_msgs.msg import String, ColorRGBA
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import Pose, Quaternion
+from geometry_msgs.msg import PoseStamped, Quaternion
 from cv_bridge import CvBridge, CvBridgeError
 from tf.transformations import euler_from_quaternion
 from libbehaviors import *
@@ -70,7 +70,7 @@ class BlobDetector:
         self.image_pub = rospy.Publisher('image_detections', Image, queue_size=1)
         self.object_pub = rospy.Publisher('object_detected', String, queue_size=1)
         self.object_pose_pub = rospy.Publisher('object_pose', Quaternion, queue_size=1) # publish the pose of the object in the base_link frame
-        
+        self.blob_publisher=rospy.Publisher('ballon_pose', PoseStamped, queue_size=1)
         self.image_sub = message_filters.Subscriber('image', Image)
         self.depth_sub = message_filters.Subscriber('depth', Image)
         self.info_sub = message_filters.Subscriber('camera_info', CameraInfo)
@@ -178,6 +178,7 @@ class BlobDetector:
                 
                 rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
                 goal = self.compute_goal(transMap, angle)
+                self.blob_publisher.publish(goal)
                 
             # self.object_pose_pub.publish(obj_pose) # signal that an object has been detected
             #rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
@@ -201,8 +202,29 @@ class BlobDetector:
         #rospy.loginfo("false")
         return False
 
+    def format_goal(self, x, y, theta):
+        goal = PoseStamped()
+        goal.header.frame_id = self.map_frame_id
+        goal.header.stamp = rospy.Time.now()
+        goal.pose.position.x = x
+        goal.pose.position.y = y
+        goal.pose.position.z = 0.0
+        q = tf.transformations.quaternion_from_euler(0, 0, theta)
+        goal.pose.orientation.x = q[0]
+        goal.pose.orientation.y = q[1]
+        goal.pose.orientation.z = q[2]
+        goal.pose.orientation.w = q[3]
+        rospy.loginfo("Goal: %f %f %f %f %f %f ", x, y, theta,q[0], q[1], q[2], q[3])
+        return goal
+
+
     def compute_goal(self, transMap, angle):
-        pass
+        x_blob=transMap[0]+1.5*np.sin(angle)
+        y_blob=transMap[1]+1.5*np.cos(angle)
+        angle_world=-180+angle
+        return format_goal(x_blob,y_blob,angle_world)
+
+        
 
 def main():
     rospy.init_node('blob_detector')
