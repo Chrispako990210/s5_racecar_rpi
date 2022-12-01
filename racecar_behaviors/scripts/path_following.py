@@ -94,12 +94,12 @@ class PathFollowing:
         # if we want the middle value of the ranges to be forward:
         #l2 = len(msg.ranges)/2;
         #ranges = msg.ranges[l2:len(msg.ranges)] + msg.ranges[0:l2]
-        
-        twist = Twist()
-        twist.linear.x = self.max_speed
-        twist.angular.z = 0
+        pass
+        # twist = Twist()
+        # twist.linear.x = self.max_speed
+        # twist.angular.z = 0
            
-        self.cmd_vel_pub.publish(twist)
+        # self.cmd_vel_pub.publish(twist)
         
     def odom_callback(self, msg):
         rospy.loginfo("Current speed = %f m/s", msg.twist.twist.linear.x)

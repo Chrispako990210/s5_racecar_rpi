@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseStamped
 
 class Goal:
-    def __init__(self, name: str, coord: Pose, wait_time: int):
+    def __init__(self, name: str, coord: PoseStamped, wait_time: int):
         self.pose = coord
         self.name = name
         self.atGoal = False
