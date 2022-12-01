@@ -17,7 +17,7 @@
   <param name="racecar/blob_detector/color_saturation" value="30"></param>
   <param name="racecar/blob_detector/color_value" value="30"></param>
 
-  <include file="$(find racecar_behaviors)/launch/blob_detection.launch"></include>
+  <include file="$(find racecar_behaviors)/launch/blob_detection.launch"></include> 
   <include file="$(find racecar_navigation)/launch/navigation.launch"></include>
 
 </launch>
