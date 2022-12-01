@@ -181,7 +181,7 @@ class BlobDetector:
                 goal = self.compute_goal(transMap, angle)
                 self.blob_publisher.publish(goal)
 
-            goal = self.compute_goal(transMap, angle)  
+            #goal = self.compute_goal(transMap, angle)  
             # self.object_pose_pub.publish(obj_pose) # signal that an object has been detected
             #rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
 
@@ -227,9 +227,9 @@ class BlobDetector:
 
 
     def compute_goal(self, transMap, angle):
-        x_blob=transMap[0]+1.5*np.sin(angle)
-        y_blob=transMap[1]+1.5*np.cos(angle)
-        angle_world=-180+angle
+        x_blob=1.5*np.cos(angle)
+        y_blob=+1.5*np.sin(angle)
+        angle_world = angle + np.pi
         return self.format_goal(x_blob,y_blob,angle_world)
 
         
