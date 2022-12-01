@@ -59,6 +59,9 @@ class BlobDetector:
         params.filterByInertia = False
         params.minInertiaRatio = 0.1
 
+        # Queue to put already detected objects
+        self.object_queue = [tuple()]
+
         self.detector = cv2.SimpleBlobDetector_create(params)
         
         self.br = tf.TransformBroadcaster()
@@ -166,10 +169,15 @@ class BlobDetector:
                 return
             (transBase, rotBase) = multiply_transforms(transBase, rotBase, transObj, rotObj)
             
-            distance = np.linalg.norm(transMap[0:2])
+            distance = np.linalg.norm(transBase[0:2])
             angle = np.arcsin(transBase[1]/transBase[0])
             
-            # Publish object pose in map frame
+            # Compute object goal in map frame
+            if not self.is_in_boundary(transMap) and distance < 5 :
+                self.object_queue.append(transMap)
+                goal = self.compute_goal(transMap, angle)
+                
+
             obj_pose = Quaternion()
             obj_pose.x = transMap[0]
             obj_pose.y = transMap[1]
@@ -185,6 +193,16 @@ class BlobDetector:
                 self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "bgr8"))
             except CvBridgeError as e:
                 print(e)
+
+    def is_in_boundary(self, transMap):
+        bound = 1.5
+        for points in self.object_queue:
+            if transMap[0] < points[0]+bound and transMap[0] > points[0]-bound and transMap[1] < points[1]+bound and transMap[1] > points[1]-bound:
+                return False
+        return True
+
+    def compute_goal(self, transMap, angle):
+        pass
 
 def main():
     rospy.init_node('blob_detector')
