@@ -60,7 +60,7 @@ class BlobDetector:
         params.minInertiaRatio = 0.1
 
         # Queue to put already detected objects
-        self.object_queue = [tuple()]
+        self.object_queue = []
 
         self.detector = cv2.SimpleBlobDetector_create(params)
         
@@ -173,18 +173,14 @@ class BlobDetector:
             angle = np.arcsin(transBase[1]/transBase[0])
             
             # Compute object goal in map frame
-            if not self.is_in_boundary(transMap) and distance < 5 :
+            if not self.is_in_boundary(transMap) and distance < 5.0 :
                 self.object_queue.append(transMap)
+                
+                rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
                 goal = self.compute_goal(transMap, angle)
                 
-
-            obj_pose = Quaternion()
-            obj_pose.x = transMap[0]
-            obj_pose.y = transMap[1]
-            obj_pose.z = 0.0
-            obj_pose.w = angle*180/np.pi
             # self.object_pose_pub.publish(obj_pose) # signal that an object has been detected
-            rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
+            #rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
 
         # debugging topic
         if self.image_pub.get_num_connections()>0:
@@ -196,10 +192,14 @@ class BlobDetector:
 
     def is_in_boundary(self, transMap):
         bound = 1.5
-        for points in self.object_queue:
-            if transMap[0] < points[0]+bound and transMap[0] > points[0]-bound and transMap[1] < points[1]+bound and transMap[1] > points[1]-bound:
-                return False
-        return True
+        #rospy.loginfo("in boundary check")
+        if len(self.object_queue) != 0:
+            for points in self.object_queue:
+                if transMap[0] < points[0]+bound and transMap[0] > points[0]-bound and transMap[1] < points[1]+bound and transMap[1] > points[1]-bound:
+                    #rospy.loginfo("true")
+                    return True
+        #rospy.loginfo("false")
+        return False
 
     def compute_goal(self, transMap, angle):
         pass
