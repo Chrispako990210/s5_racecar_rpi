@@ -30,7 +30,7 @@
        <param name="map_frame_id"    value="$(arg prefix)/$(arg fixed_frame_id)"/>
        <param name="frame_id"        value="$(arg prefix)/base_footprint"/>
        <param name="object_frame_id" value="$(arg prefix)/object"/>
-       <param name="color_hue"       value="10"/>
+       <param name="color_hue"       value="100"/>
     </node>
         
     <!-- used to debug camera vs scan registration -->

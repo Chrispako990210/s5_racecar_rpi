@@ -22,10 +22,10 @@ class BlobDetector:
         self.frame_id = rospy.get_param('~frame_id', 'base_link')
         self.object_frame_id = rospy.get_param('~object_frame_id', 'object')
         self.color_hue = rospy.get_param('~color_hue', 100) # 160=purple, 100=blue, 10=Orange
-        self.color_range = rospy.get_param('~color_range', 21) 
+        self.color_range = rospy.get_param('~color_range', 30) 
         self.color_saturation = rospy.get_param('~color_saturation',30) 
-        self.color_value = rospy.get_param('~color_value', 31) 
-        self.border = rospy.get_param('~border', 10) 
+        self.color_value = rospy.get_param('~color_value', 30) 
+        self.border = rospy.get_param('~border', 15) 
         self.config_srv = Server(BlobDetectorConfig, self.config_callback)
         
         params = cv2.SimpleBlobDetector_Params()
@@ -166,16 +166,16 @@ class BlobDetector:
                 return
             (transBase, rotBase) = multiply_transforms(transBase, rotBase, transObj, rotObj)
             
-            distance = np.linalg.norm(transBase[0:2])
+            distance = np.linalg.norm(transMap[0:2])
             angle = np.arcsin(transBase[1]/transBase[0])
             
             # Publish object pose in map frame
             obj_pose = Quaternion()
-            obj_pose.x = distance
-            obj_pose.y = 0.0
+            obj_pose.x = transMap[0]
+            obj_pose.y = transMap[1]
             obj_pose.z = 0.0
             obj_pose.w = angle*180/np.pi
-            # self.object_pub.publish(obj_pose) # signal that an object has been detected
+            # self.object_pose_pub.publish(obj_pose) # signal that an object has been detected
             rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
 
         # debugging topic

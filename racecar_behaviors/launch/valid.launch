@@ -10,6 +10,13 @@
   
   <include file="$(find racecar_navigation)/launch/rviz.launch"></include>
   
+  <!-- Paramètres de détection de ballon bleu -->
+  <param name="racecar/blob_detector/border" value="15"></param>
+  <param name="racecar/blob_detector/color_hue" value="100"></param>
+  <param name="racecar/blob_detector/color_range" value="30"></param>
+  <param name="racecar/blob_detector/color_saturation" value="30"></param>
+  <param name="racecar/blob_detector/color_value" value="30"></param>
+
   <include file="$(find racecar_behaviors)/launch/blob_detection.launch"></include>
   <include file="$(find racecar_navigation)/launch/navigation.launch"></include>
 
