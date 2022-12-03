@@ -20,6 +20,7 @@ class PathFollowing:
         self.i = 0
         self.goals_stack: Deque[Goal] = deque()
 
+
         self.client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
         # Waits until the action server has started up and started listening for goals.
         self.client.wait_for_server()
@@ -62,19 +63,20 @@ class PathFollowing:
     def start_callback(self, msg):
         while self.goals_stack:
             rospy.loginfo("in while")
-
             #debug
             j = 0
             for i in self.goals_stack:
                 rospy.loginfo("in while name : %s, position : %f", i.name, j)
                 j += 1
-            
+
             result = self.movebase_client(self.goals_stack[-1])
             rospy.loginfo("got result in while loop : %s", result)
 
             if result:
+                rospy.loginfo("in result")
                 d = rospy.Duration(self.goals_stack[-1].wait_time, 0)
                 rospy.sleep(d)
+
                 self.goals_stack[-1].atGoal = True
 
                 if self.goals_stack[-1].name != "end_goal" and self.goals_stack[-1].name != "start_goal":
@@ -88,6 +90,7 @@ class PathFollowing:
 
 
     def ballon_pose_callback(self, pose: PoseStamped):
+
         # self.client.cancel_goal()
         # rospy.loginfo("Canceled goal %s", self.goals_stack[-1].name)
         # self.goals_stack.pop()
@@ -97,6 +100,7 @@ class PathFollowing:
         # print(f"goal.pose = {goal.pose}")
         # # goal.pose.pose.position.x = goal.pose.pose.position.x - 1
         # self.goals_stack.append(goal)
+
 
         #debug
         j = 0
