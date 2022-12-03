@@ -19,8 +19,8 @@ class Goal:
     def get_pose(self):
         return self.pose
 
-    def __str__(self):
-        return "[Coord: x = %f, y = %f] [Picture_name: %s] [Path_name: %s] " % (self.x, self.y, self.picture_name, self.path_name)
+    #def __str__(self):
+    #    return "[Coord: x = %f, y = %f] [Picture_name: %s] [Path_name: %s] " % (self.x, self.y, self.picture_name, self.path_name)
 
-    def __repr__(self):
-        return "[Coord: x = %f, y = %f] [Picture_name: %s] [Path_name: %s] " % (self.x, self.y, self.picture_name, self.path_name)
+    #def __repr__(self):
+    #    return "[Coord: x = %f, y = %f] [Picture_name: %s] [Path_name: %s] " % (self.x, self.y, self.picture_name, self.path_name)

@@ -181,10 +181,6 @@ class BlobDetector:
                 goal = self.compute_goal(transMap, angle)
                 self.blob_publisher.publish(goal)
 
-            #goal = self.compute_goal(transMap, angle)  
-            # self.object_pose_pub.publish(obj_pose) # signal that an object has been detected
-            #rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
-
         # debugging topic
         if self.image_pub.get_num_connections()>0:
             cv_image = cv2.bitwise_and(cv_image, cv_image, mask=mask)
