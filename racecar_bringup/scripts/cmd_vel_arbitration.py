@@ -36,13 +36,13 @@ class Arbitration:
             self._status_pub.publish(status);
 
     def cmd_vel_callback0(self, msg):
-        self.cmd_vel_callback(msg, 2)
+        self.cmd_vel_callback(msg, 0)
 
     def cmd_vel_callback1(self, msg):
         self.cmd_vel_callback(msg, 1)
 
     def cmd_vel_callback2(self, msg):
-        self.cmd_vel_callback(msg, 0)
+        self.cmd_vel_callback(msg, 2)
 
     def cmd_vel_callback3(self, msg):
         self.cmd_vel_callback(msg, 3)

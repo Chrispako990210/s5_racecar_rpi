@@ -16,8 +16,7 @@ from goal import Goal
 
 class PathFollowing:
     def __init__(self):
-        global i
-        i = 0
+        self.i = 0
         self.client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
         # Waits until the action server has started up and started listening for goals.
         self.client.wait_for_server()
@@ -62,19 +61,38 @@ class PathFollowing:
         rospy.loginfo("avancer?")
         while self.goals_stack:
             rospy.loginfo("in while")
+            
+            #debug
+            j = 0
+            for i in self.goals_stack:
+                rospy.loginfo("name : %s, position : %f", i.name, j)
+                j += 1
+
             result = self.movebase_client(self.goals_stack[-1])
             if result:
+                rospy.loginfo("in result")
                 d = rospy.Duration(self.goals_stack[-1].wait_time, 0)
                 rospy.sleep(d)
-                self.goals_stack[-1].atGoal = True
-                self.goals_stack.pop()
+                #self.goals_stack[-1].atGoal = True
+                #self.goals_stack.pop()
+
+            
             if self.start_goal.atGoal and (self.end_goal not in self.goals_stack) and not self.end_goal.atGoal:
                 self.goals_stack.append(self.end_goal)
 
     def ballon_pose_callback(self, pose: PoseStamped):
-        i = i + 1
-        goal = Goal(f'ballon{i}', pose, 5)
+        self.i = self.i + 1
+        goal = Goal(f'ballon{self.i}', pose, 5)
+        self.goals_stack.pop()
         self.goals_stack.append(goal)
+        rospy.loginfo("added ballon goal %s", goal.name)
+        self.client.cancel_goal()
+
+        #debug
+        j = 0
+        for i in self.goals_stack:
+            rospy.loginfo("name : %s, position : %f", i.name, j)
+            j += 1
 
 
     def movebase_client(self, target: Goal):
@@ -83,14 +101,14 @@ class PathFollowing:
         goal.target_pose.pose = target.pose.pose
         goal.target_pose.header.stamp = rospy.Time.now() 
         goal.target_pose.header.frame_id = "racecar/map"
-        rospy.loginfo("create new goal")
+        rospy.loginfo("create new goal %s", target.name)
 
         # Sends the goal to the action server.
-        rospy.loginfo("send_goal")
+        rospy.loginfo("send_goal %s", target.name)
         self.client.send_goal(goal)
         # Waits for the server to finish performing the action.
         wait = self.client.wait_for_result()
-        rospy.loginfo("got result")
+        rospy.loginfo("got result %s", target.name)
         # If the result doesn't arrive, assume the Server is not available
         if not wait:
             rospy.logerr("Action server not available!")
