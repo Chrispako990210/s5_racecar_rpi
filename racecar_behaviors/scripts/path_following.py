@@ -19,7 +19,8 @@ class PathFollowing:
         rospy.loginfo("init")
         self.i = 0
         self.goals_stack = []
-
+        # self.report_list = []
+        self.report_path = '/home/catkin_ws/src/s5_racecar_rpi/racecar_behaviors/reports/Report.txt'
 
         self.client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
         # Waits until the action server has started up and started listening for goals.
@@ -35,9 +36,9 @@ class PathFollowing:
         self.ballon_sub = rospy.Subscriber('ballon_pose', PoseStamped, self.ballon_pose_callback, queue_size=1)
         self.start_sub = rospy.Subscriber('/racecar/start', Empty, self.start_callback, queue_size=1)
 
-
     def init_goals(self):
         start_goal_pose = PoseStamped()
+        start_goal_pose.header.frame_id = 'racecar/map'
         start_goal_pose.pose.position.x = 13.5     # 1.4870813332307862
         start_goal_pose.pose.position.y = 2.1      # 0.19644110658552927
         start_goal_pose.pose.position.z = 0.0
@@ -48,10 +49,11 @@ class PathFollowing:
         start_goal = Goal("start_goal", start_goal_pose, 0)
 
         end_goal_pose = PoseStamped()
+        end_goal_pose.header.frame_id = 'racecar/map'
         end_goal_pose.pose.position.x = 0.0
         end_goal_pose.pose.position.y = 0.0
         end_goal_pose.pose.position.z = 0.0
-        end_goal_pose.pose.orientation.w = 0
+        end_goal_pose.pose.orientation.w = 0.0
         end_goal_pose.pose.orientation.x = 0.0
         end_goal_pose.pose.orientation.y = 0.0
         end_goal_pose.pose.orientation.z = 1.0
@@ -63,23 +65,15 @@ class PathFollowing:
 
 
     def start_callback(self, msg):
-        rospy.loginfo("Starting goal sequence")
         self.movebase_client(self.goals_stack[-1])
-
-        #debug
-        j = 0
-        if not self.goals_stack:
-            rospy.loginfo("NO STACK")
-        for i in self.goals_stack:
-            rospy.loginfo("name: %s, position: %i", i.name, j)
-            j += 1
         
 
     def ballon_pose_callback(self, pose: PoseStamped):
 
-        rospy.loginfo("ballon detected")
-        goal = Goal("ballon", pose, 0)
+        rospy.loginfo("ballon detecter")
+        goal = Goal(f"ballon{self.i}", pose, 0)
         self.goals_stack.append(goal)
+        self.i = self.i + 1
         self.movebase_client(goal)
 
         #debug
@@ -94,8 +88,8 @@ class PathFollowing:
     def done_callback(self, status, result):
 
         rospy.loginfo("done_callback")
-        if self.goals_stack[-1].name == "ballon":
-            rospy.sleep( rospy.Duration(5, 0)) 
+        if "ballon" in self.goals_stack[-1].name:
+            rospy.sleep( rospy.Duration(self.goals_stack[-1].wait_time, 0)) 
             rospy.loginfo("sleep done")  
         self.goals_stack.pop()
 
@@ -115,9 +109,8 @@ class PathFollowing:
     def movebase_client(self, target: Goal):
         # Creates a new goal with the MoveBaseGoal constructor
         goal = MoveBaseGoal()
-        goal.target_pose.pose = target.pose.pose
+        goal.target_pose = target.pose
         goal.target_pose.header.stamp = rospy.Time.now() 
-        goal.target_pose.header.frame_id = "racecar/map"
         rospy.loginfo("create new goal %s", target.name)
 
         # Sends the goal to the action server.
