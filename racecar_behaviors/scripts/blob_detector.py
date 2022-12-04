@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import os
 import cv2
 import numpy as np
 import message_filters
@@ -59,6 +60,10 @@ class BlobDetector:
         # Set inertia filtering parameters 
         params.filterByInertia = False
         params.minInertiaRatio = 0.1
+        
+        # Default path for obstacle report
+        self.img_dir = '/home/catkin_ws/src/s5_racecar_rpi/racecar_behaviors/report/img/'
+        self.path_dir = '/home/catkin_ws/src/s5_racecar_rpi/racecar_behaviors/report/paths/'
 
         # Queue to put already detected objects
         self.object_queue = []
@@ -75,6 +80,9 @@ class BlobDetector:
         self.image_sub = message_filters.Subscriber('image', Image)
         self.depth_sub = message_filters.Subscriber('depth', Image)
         self.info_sub = message_filters.Subscriber('camera_info', CameraInfo)
+        
+        self.img_saver_sub = rospy.Subscriber('img_report', String, self.save_image_cb)
+        self.curr_img: Image = None
         self.ts = message_filters.TimeSynchronizer([self.image_sub, self.depth_sub, self.info_sub], 10)
         self.ts.registerCallback(self.image_callback)
         
@@ -87,13 +95,22 @@ class BlobDetector:
         self.border = config.border
         return config
   
+    def save_image_cb(self, msg):
+        rospy.loginfo("saving image")
+        try: 
+            cv2_img_saver = self.bridge.imgmsg_to_cv2(self.curr_img, "bgr8")
+        except CvBridgeError as e:
+            print(e)
+        else:
+            cv2.imwrite((self.img_dir+f'{msg}.jpeg'), cv2_img_saver)
+        
+        
     def image_callback(self, image, depth, info):
-            
+        self.curr_img = image
         try:
             cv_image = self.bridge.imgmsg_to_cv2(image, "bgr8")
         except CvBridgeError as e:
             print(e)
-            
         try:
             cv_depth = self.bridge.imgmsg_to_cv2(depth, "32FC1")
         except CvBridgeError as e:

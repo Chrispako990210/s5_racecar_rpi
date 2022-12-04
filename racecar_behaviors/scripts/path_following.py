@@ -8,7 +8,7 @@ from geometry_msgs.msg import Twist, PoseStamped
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from std_msgs.msg import Empty
+from std_msgs.msg import Empty, String
 
 import dynamic_reconfigure.client
 
@@ -19,7 +19,8 @@ class PathFollowing:
         rospy.loginfo("init")
         self.i = 0
         self.goals_stack = []
-
+        # self.report_list = []
+        self.report_path = '/home/catkin_ws/src/s5_racecar_rpi/racecar_behaviors/report/Report.txt'
 
         self.client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
         # Waits until the action server has started up and started listening for goals.
@@ -30,11 +31,11 @@ class PathFollowing:
         self.max_speed = rospy.get_param('~max_speed', 1)
         self.max_steering = rospy.get_param('~max_steering', 0.37) # Peut etre a modifier
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
+        self.img_saver_pub = rospy.Publisher('img_report', String, queue_size=1)
         self.scan_sub = rospy.Subscriber('scan', LaserScan, self.scan_callback, queue_size=1)
         self.odom_sub = rospy.Subscriber('odom', Odometry, self.odom_callback, queue_size=1)
         self.ballon_sub = rospy.Subscriber('ballon_pose', PoseStamped, self.ballon_pose_callback, queue_size=1)
         self.start_sub = rospy.Subscriber('/racecar/start', Empty, self.start_callback, queue_size=1)
-
 
     def init_goals(self):
         start_goal_pose = PoseStamped()
@@ -98,13 +99,6 @@ class PathFollowing:
         # Sends the goal to the action server.
         self.client.send_goal(goal, self.done_callback)
         rospy.loginfo("new goal sended")
-        
-
-
-
-
-
-
 
 
 
@@ -122,17 +116,20 @@ class PathFollowing:
 
         pass
         
-
     def odom_callback(self, msg):
         #rospy.loginfo("Current speed = %f m/s", msg.twist.twist.linear.x)
         pass
 
+    def add_to_record(self, target: Goal):
+        self.img_saver_pub.publish(target.name)
+        # TODO: add fonction a Tony qui get le path dans le graph et creer le fichier.
+        with open(self.report_path, 'a') as f:
+            f.write(target)
 
 def main():
     rospy.init_node('path_following')
     pF = PathFollowing()
     rospy.spin()
-
 
 if __name__ == '__main__':
     try:
