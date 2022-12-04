@@ -240,7 +240,7 @@ class BlobDetector:
             return
 
         goal = PoseStamped()
-        goal.header.frame_id = self.goal_frame_id
+        goal.header.frame_id = self.map_frame_id
         goal.header.stamp = rospy.Time.now()
         goal.pose.position.x = transGoal[0]
         goal.pose.position.y = transGoal[1]
