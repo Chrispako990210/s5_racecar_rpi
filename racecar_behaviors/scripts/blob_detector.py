@@ -160,7 +160,7 @@ class BlobDetector:
                 print(e)
                 return
             (transMap, rotMap) = multiply_transforms(transMap, rotMap, transObj, rotObj)
-            
+
             # Compute object pose in base frame
             try:
                 self.listener.waitForTransform(self.frame_id, image.header.frame_id, image.header.stamp, rospy.Duration(0.5))
@@ -170,15 +170,25 @@ class BlobDetector:
                 return
             (transBase, rotBase) = multiply_transforms(transBase, rotBase, transObj, rotObj)
             
+            angleMap = np.arcsin(transMap[1]/transMap[0])
             distance = np.linalg.norm(transBase[0:2])
             angle = np.arcsin(transBase[1]/transBase[0])
+
+            # Sending goal from object
+            x = 1.8*np.cos(angle)
+            y = 1.8*np.sin(angle)
+            q = tf.transformations.quaternion_from_euler(0, 0, angle + np.pi)
+            self.br.sendTransform((x,y,0) , q,
+                    image.header.stamp,
+                    self.goal_frame_id,
+                    self.object_frame_id) 
             
             # Compute object goal in map frame
-            if not self.is_in_boundary(transMap) and distance < 5.0 :
+            if not self.is_in_boundary(transMap) and distance < 4.0 :
                 self.object_queue.append(transMap)
                 
                 rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
-                goal = self.compute_goal(transMap, angle)
+                goal = self.compute_goal(transMap,distance, angle)
                 self.blob_publisher.publish(goal)
 
         # debugging topic
@@ -199,36 +209,33 @@ class BlobDetector:
                     return True
         #rospy.loginfo("false")
         return False
+        
+    def compute_goal(self,transMap, distance, angle):
+        
+        #compute racecar pose in map frame
+        try:
+            rospy.loginfo("waiting for transform")         
+            self.listener.waitForTransform("racecar/odom", "racecar/goal", rospy.Time(0), rospy.Duration(1.0))
+            rospy.loginfo("lookup")
+            (transGoal,rotGoal) = self.listener.lookupTransform("racecar/odom", "racecar/goal", rospy.Time(0))
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf2_ros.TransformException) as e:
+            print(e)
+            return
 
-    def format_goal(self, x, y, theta):
         goal = PoseStamped()
         goal.header.frame_id = self.goal_frame_id
         goal.header.stamp = rospy.Time.now()
-        goal.pose.position.x = x
-        goal.pose.position.y = y
+        goal.pose.position.x = transGoal[0]
+        goal.pose.position.y = transGoal[1]
         goal.pose.position.z = 0.0
-        q = tf.transformations.quaternion_from_euler(0, 0, theta)
+        goal.pose.orientation.x = rotGoal[0]
+        goal.pose.orientation.y = rotGoal[1]
+        goal.pose.orientation.z = rotGoal[2]
+        goal.pose.orientation.w = rotGoal[3]
 
-        self.br.sendTransform((x,y,0.0) , q,
-                    goal.header.stamp,
-                    self.goal_frame_id,
-                    self.object_frame_id) 
-
-        goal.pose.orientation.x = q[0]
-        goal.pose.orientation.y = q[1]
-        goal.pose.orientation.z = q[2]
-        goal.pose.orientation.w = q[3]
-        rospy.loginfo("Goal: %f %f %f %f %f %f %f ", x, y, theta,q[0], q[1], q[2], q[3])
+        rospy.loginfo("returning goal")
         return goal
-
-
-    def compute_goal(self, transMap, angle):
-        x_blob=-1.5*np.cos(angle)+transMap[0]
-        y_blob=-1.5*np.sin(angle)+transMap[1]
-        angle_world = angle 
-        return self.format_goal(x_blob,y_blob,angle_world)
-
-        
+         
 
 def main():
     rospy.init_node('blob_detector')
