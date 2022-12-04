@@ -9,7 +9,7 @@ class Goal:
         self.atGoal = False
         self.wait_time = wait_time
         if "ballon" in name:
-            self.picture_name = f'{name}.png'
+            self.picture_name = f'{name}.jpeg'
             self.path_name = f'path_{name}.bmp'
         else:
             self.picture_name = None
@@ -19,8 +19,8 @@ class Goal:
     def get_pose(self):
         return self.pose
 
-    #def __str__(self):
-    #    return "[Coord: x = %f, y = %f] [Picture_name: %s] [Path_name: %s] " % (self.x, self.y, self.picture_name, self.path_name)
+    def __str__(self):
+       return "[Coord: x = %f, y = %f] [Picture_name: %s] [Path_name: %s]\n" % (self.pose.pose.position.x, self.pose.pose.position.y, self.picture_name, self.path_name)
 
-    #def __repr__(self):
-    #    return "[Coord: x = %f, y = %f] [Picture_name: %s] [Path_name: %s] " % (self.x, self.y, self.picture_name, self.path_name)
+    def __repr__(self):
+       return "[Coord: x = %f, y = %f] [Picture_name: %s] [Path_name: %s]\n" % (self.pose.pose.position.x, self.pose.pose.position.y, self.picture_name, self.path_name)

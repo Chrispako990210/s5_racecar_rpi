@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import rospy
-import cv2
 import tf
 import numpy as np
 from tf.transformations import euler_from_quaternion
