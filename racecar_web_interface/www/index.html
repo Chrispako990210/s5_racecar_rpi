@@ -40,19 +40,32 @@ Client-side:
       </form>
 
       <button class="btn btn-outline-success my-2 my-sm-0 mt-5" type="submit" id="conn_btn" onclick="connectROS()">Connexion</button>
+      
     </div>
   </div>
 
   <nav class="navbar navbar-dark bg-dark">
     <div class="row">
-      <div class="column">
+      <div class="col">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
           <span class="navbar-toggler-icon"></span>
         </button>
       </div>
       
-      <div class="column"; style="padding-left:0 px">
-        <h1 style="color:white;">Racecar</h1>
+      <div class="col"; style="padding-left:0 px">
+        <h2 style="color:white;">Racecar</h2>
+      </div>
+      
+    </div>
+    <div class="col-md-3 self-align-end">
+      <div class="row">
+        <svg  width="16" height="30"  class="bi bi-circle-fill" viewBox="0 0 16 16">
+          <circle id="statusIcon" cx="8" cy="9" r="8"/>
+        </svg>
+        <h4 id="connStatus" style="padding-left: 5px;"></h4>
+        <div class="col self-align-end">
+          <button class="btn btn-outline-light" id="disconn_btn" onclick="disconnectROS()">Déconnexion</button>  
+        </div>
       </div>
     </div>
   </nav>  -->
@@ -152,6 +165,5 @@ Client-side:
 
 </body>
 </html>
-Footer
-© 2022 Racecar mcqueen 
-Antoine
+
+© 2022 racecar UdeS
