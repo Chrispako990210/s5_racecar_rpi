@@ -51,40 +51,65 @@ class PathFollowing:
         end_goal_pose.pose.position.x = 0.0
         end_goal_pose.pose.position.y = 0.0
         end_goal_pose.pose.position.z = 0.0
-        end_goal_pose.pose.orientation.w = -1.0
+        end_goal_pose.pose.orientation.w = 0
         end_goal_pose.pose.orientation.x = 0.0
         end_goal_pose.pose.orientation.y = 0.0
-        end_goal_pose.pose.orientation.z = 0.0
+        end_goal_pose.pose.orientation.z = 1.0
         end_goal = Goal("end_goal", end_goal_pose, 0)
 
-        self.goals_stack.append(start_goal)
         self.goals_stack.append(end_goal)
+        self.goals_stack.append(start_goal)
         
 
 
     def start_callback(self, msg):
-        self.movebase_client(self.goals_stack[0])
+        rospy.loginfo("Starting goal sequence")
+        self.movebase_client(self.goals_stack[-1])
+
+        #debug
+        j = 0
+        if not self.goals_stack:
+            rospy.loginfo("NO STACK")
+        for i in self.goals_stack:
+            rospy.loginfo("name: %s, position: %i", i.name, j)
+            j += 1
         
 
     def ballon_pose_callback(self, pose: PoseStamped):
 
-        rospy.loginfo("ballon detecter")
+        rospy.loginfo("ballon detected")
         goal = Goal("ballon", pose, 0)
         self.goals_stack.append(goal)
         self.movebase_client(goal)
+
+        #debug
+        j = 0
+        if not self.goals_stack:
+            rospy.loginfo("NO STACK")
+        for i in self.goals_stack:
+            rospy.loginfo("name: %s, position: %i", i.name, j)
+            j += 1
         
 
     def done_callback(self, status, result):
 
         rospy.loginfo("done_callback")
         if self.goals_stack[-1].name == "ballon":
-            rospy.sleep( rospy.Duration(self.goals_stack[0].wait_time, 0)) 
+            rospy.sleep( rospy.Duration(5, 0)) 
             rospy.loginfo("sleep done")  
         self.goals_stack.pop()
 
         if self.goals_stack:
             self.movebase_client(self.goals_stack[-1])
             pass
+
+        #debug
+        j = 0
+        if not self.goals_stack:
+            rospy.loginfo("NO STACK")
+        for i in self.goals_stack:
+            rospy.loginfo("name: %s, position: %i", i.name, j)
+            j += 1
 
 
     def movebase_client(self, target: Goal):
@@ -97,16 +122,7 @@ class PathFollowing:
 
         # Sends the goal to the action server.
         self.client.send_goal(goal, self.done_callback)
-        rospy.loginfo("new goal sended")
         
-
-
-
-
-
-
-
-
 
     def scan_callback(self, msg):
         # Because the lidar is oriented backward on the racecar, 
