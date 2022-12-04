@@ -20,6 +20,6 @@
   <include file="$(find racecar_behaviors)/launch/blob_detection.launch"></include> 
   <include file="$(find racecar_navigation)/launch/navigation.launch"></include>
 
-  <include file="$(find racecar_behaviors)/launch/behaviors.launch"></include> 
+  <!-- <include file="$(find racecar_behaviors)/launch/behaviors.launch"></include>  -->
 
 </launch>

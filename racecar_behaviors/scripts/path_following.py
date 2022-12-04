@@ -25,6 +25,8 @@ class PathFollowing:
         # Waits until the action server has started up and started listening for goals.
         self.client.wait_for_server()
 
+        self.counter = 0
+
         self.init_goals()  
 
         self.max_speed = rospy.get_param('~max_speed', 1)
@@ -37,55 +39,87 @@ class PathFollowing:
 
 
     def init_goals(self):
-        start_goal_pose = PoseStamped()
-        start_goal_pose.pose.position.x = 13.5     # 1.4870813332307862
-        start_goal_pose.pose.position.y = 2.1      # 0.19644110658552927
-        start_goal_pose.pose.position.z = 0.0
-        start_goal_pose.pose.orientation.w = 1.0
-        start_goal_pose.pose.orientation.x = 0.0
-        start_goal_pose.pose.orientation.y = 0.0
-        start_goal_pose.pose.orientation.z = 0.0
-        start_goal = Goal("start_goal", start_goal_pose, 0)
+        self.start_goal_pose = PoseStamped()
+        self.start_goal_pose.pose.position.x = 13.5     # 1.4870813332307862
+        self.start_goal_pose.pose.position.y = 2.1      # 0.19644110658552927
+        self.start_goal_pose.pose.position.z = 0.0
+        self.start_goal_pose.pose.orientation.w = 1.0
+        self.start_goal_pose.pose.orientation.x = 0.0
+        self.start_goal_pose.pose.orientation.y = 0.0
+        self.start_goal_pose.pose.orientation.z = 0.0
+        self.start_goal = Goal("start_goal", self.start_goal_pose, 0)
 
-        end_goal_pose = PoseStamped()
-        end_goal_pose.pose.position.x = 0.0
-        end_goal_pose.pose.position.y = 0.0
-        end_goal_pose.pose.position.z = 0.0
-        end_goal_pose.pose.orientation.w = -1.0
-        end_goal_pose.pose.orientation.x = 0.0
-        end_goal_pose.pose.orientation.y = 0.0
-        end_goal_pose.pose.orientation.z = 0.0
-        end_goal = Goal("end_goal", end_goal_pose, 0)
+        self.end_goal_pose = PoseStamped()
+        self.end_goal_pose.pose.position.x = 0.0
+        self.end_goal_pose.pose.position.y = 0.0
+        self.end_goal_pose.pose.position.z = 0.0
+        self.end_goal_pose.pose.orientation.w = -1.0
+        self.end_goal_pose.pose.orientation.x = 0.0
+        self.end_goal_pose.pose.orientation.y = 0.0
+        self.end_goal_pose.pose.orientation.z = 0.0
+        self.end_goal = Goal("end_goal", self.end_goal_pose, 0)
 
-        self.goals_stack.append(start_goal)
-        self.goals_stack.append(end_goal)
-        
+        # self.goals_stack.append(self.start_goal)
+
+        self.now_goal = self.start_goal
+        self.old_goal = self.end_goal
 
 
     def start_callback(self, msg):
-        self.movebase_client(self.goals_stack[0])
-        
+        rospy.loginfo("Start_callback")
+        while not self.end_goal.atGoal:
+            self.cancel_flag = False
+            result = self.movebase_client(self.now_goal)
+            if result:
+                rospy.loginfo("Goal execution done!")
+
+                if "ballon" in self.now_goal.name:          # Si c'est un ballon
+                    rospy.loginfo("Goal was balloon")
+                    self.old_goal = self.now_goal
+                    if self.start_goal.atGoal:
+                        self.now_goal = self.end_goal
+                        rospy.loginfo("Going to end_goal after balloon")
+                    else:
+                        rospy.loginfo("Going to start_goal after balloon")
+                        self.now_goal = self.start_goal
+
+            if result:
+                rospy.loginfo("in result")
+                d = rospy.Duration(self.goals_stack[-1].wait_time, 0)
+                rospy.sleep(d)
+
+                self.goals_stack[-1].atGoal = True
+
+                if self.goals_stack[-1].name != "end_goal" and self.goals_stack[-1].name != "start_goal":
+                    rospy.loginfo("in if != start_goal")
+                    self.goals_stack.append(self.start_goal)
+
+            if self.start_goal.atGoal and (self.end_goal not in self.goals_stack) and not self.end_goal.atGoal:
+                rospy.loginfo("in if != self.start_goal.atGoal")
+                self.goals_stack.pop()
+                self.goals_stack.append(self.end_goal)
+
 
     def ballon_pose_callback(self, pose: PoseStamped):
 
-        rospy.loginfo("ballon detecter")
-        goal = Goal("ballon", pose, 0)
-        self.goals_stack.append(goal)
-        self.movebase_client(goal)
-        
+        # self.client.cancel_goal()
+        # rospy.loginfo("Canceled goal %s", self.goals_stack[-1].name)
+        # self.goals_stack.pop()
 
-    def done_callback(self, status, result):
+        # self.i = self.i + 1
+        # goal = Goal(f'ballon{self.i}', pose, 0)
+        # print(f"goal.pose = {goal.pose}")
+        # # goal.pose.pose.position.x = goal.pose.pose.position.x - 1
+        # self.goals_stack.append(goal)
 
-        rospy.loginfo("done_callback")
-        if self.goals_stack[-1].name == "ballon":
-            rospy.sleep( rospy.Duration(self.goals_stack[0].wait_time, 0)) 
-            rospy.loginfo("sleep done")  
-        self.goals_stack.pop()
 
-        if self.goals_stack:
-            self.movebase_client(self.goals_stack[-1])
-            pass
+        #debug
+        j = 0
+        for i in self.goals_stack:
+            rospy.loginfo("in ballon name : %s, position : %f", i.name, j)
+            j += 1
 
+        # pass
 
     def movebase_client(self, target: Goal):
         # Creates a new goal with the MoveBaseGoal constructor
@@ -96,13 +130,29 @@ class PathFollowing:
         rospy.loginfo("create new goal %s", target.name)
 
         # Sends the goal to the action server.
-        self.client.send_goal(goal, self.done_callback)
-        rospy.loginfo("new goal sended")
-        
+        self.client.send_goal(goal)
+        rospy.loginfo("send_goal %s", target.name)
+        # Waits for the server to finish performing the action.
+        wait = self.client.wait_for_result()
+        rospy.loginfo("got result %s", target.name)
+        # If the result doesn't arrive, assume the Server is not available
+        if not wait:
+            rospy.logerr("Action server not available!")
+            rospy.signal_shutdown("Action server not available!")
+        else:
+        # Result of executing the action
+            rospy.loginfo("Result of executing the action")
+            return self.client.get_result() 
+
+        # Result of executing the action
+            # rospy.loginfo("Result of executing the action")
+            # return self.client.get_result() 
 
 
 
-
+    def report_creation(self):
+        #TODO
+        pass
 
 
 

@@ -120,7 +120,7 @@ class BlobDetector:
                     y = pts_uv[0][0][1]
                     #rospy.loginfo("(%d/%d) %f %f -> %f %f angle=%f deg", i+1, len(keypoints), keypoints[i].pt[0], keypoints[i].pt[1], x, y, angle*180/np.pi)
                     
-                    # Get depth
+                    # Get depth.
                     u = int(x * info.P[0] + info.P[2])
                     v = int(y * info.P[5] + info.P[6])
                     depth = -1
@@ -174,7 +174,7 @@ class BlobDetector:
             angle = np.arcsin(transBase[1]/transBase[0])
             
             # Compute object goal in map frame
-            if not self.is_in_boundary(transMap) and distance < 5.0 :
+            if not self.is_in_boundary(transMap) and distance < 3.0 :
                 self.object_queue.append(transMap)
                 
                 rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
@@ -223,9 +223,9 @@ class BlobDetector:
 
 
     def compute_goal(self, transMap, angle):
-        x_blob=-1.5*np.cos(angle)+transMap[0]
-        y_blob=-1.5*np.sin(angle)+transMap[1]
-        angle_world = angle 
+        x_blob=1.5*np.cos(angle)
+        y_blob=+1.5*np.sin(angle)
+        angle_world = angle + np.pi
         return self.format_goal(x_blob,y_blob,angle_world)
 
         
