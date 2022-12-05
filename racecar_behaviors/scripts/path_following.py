@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
 import rospy
+import os
 import actionlib
-from typing import Deque
-from collections import deque
 from geometry_msgs.msg import Twist, PoseStamped
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from std_msgs.msg import Empty
+from std_msgs.msg import Empty, String
 
-import dynamic_reconfigure.client
+# import dynamic_reconfigure.client
 
 from goal import Goal
 
@@ -19,8 +18,7 @@ class PathFollowing:
         rospy.loginfo("init")
         self.i = 0
         self.goals_stack = []
-        # self.report_list = []
-        self.report_path = '/home/catkin_ws/src/s5_racecar_rpi/racecar_behaviors/reports/Report.txt'
+        self.report_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "report.txt")
 
         self.client = actionlib.SimpleActionClient('move_base',MoveBaseAction)
         # Waits until the action server has started up and started listening for goals.
@@ -35,6 +33,7 @@ class PathFollowing:
         self.odom_sub = rospy.Subscriber('odom', Odometry, self.odom_callback, queue_size=1)
         self.ballon_sub = rospy.Subscriber('ballon_pose', PoseStamped, self.ballon_pose_callback, queue_size=1)
         self.start_sub = rospy.Subscriber('/racecar/start', Empty, self.start_callback, queue_size=1)
+        self.img_saver_pub = rospy.Publisher('img_report', String, queue_size=1)
 
     def init_goals(self):
         start_goal_pose = PoseStamped()
@@ -71,7 +70,7 @@ class PathFollowing:
     def ballon_pose_callback(self, pose: PoseStamped):
 
         rospy.loginfo("ballon detecter")
-        goal = Goal(f"ballon{self.i}", pose, 0)
+        goal = Goal(f"ballon{self.i}", pose, 5)
         self.goals_stack.append(goal)
         self.i = self.i + 1
         self.movebase_client(goal)
@@ -90,7 +89,8 @@ class PathFollowing:
         rospy.loginfo("done_callback")
         if "ballon" in self.goals_stack[-1].name:
             rospy.sleep( rospy.Duration(self.goals_stack[-1].wait_time, 0)) 
-            rospy.loginfo("sleep done")  
+            rospy.loginfo("Adding obstacle to record")
+            self.add_to_record(self.goals_stack[-1])
         self.goals_stack.pop()
 
         if self.goals_stack:
@@ -116,10 +116,16 @@ class PathFollowing:
         # Sends the goal to the action server.
         self.client.send_goal(goal, self.done_callback)
         
+    def add_to_record(self, target: Goal):
+        self.img_saver_pub.publish(target.picture_name)
+        # TODO: add funct a Tony, prendre x, y du goal et le path name pour generer le .bmp
+        answ = os.path.exists(self.report_path)
+        with open(self.report_path, "a" if answ else "w") as f:
+            f.write(str(target))
 
     def scan_callback(self, msg):
         # Because the lidar is oriented backward on the racecar, 
-        # if we want the middle value of the ranges to be forward:
+        # if we want the middle value of the ranges to be forward
         #l2 = len(msg.ranges)/2;
         #ranges = msg.ranges[l2:len(msg.ranges)] + msg.ranges[0:l2]
 

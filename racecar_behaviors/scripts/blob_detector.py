@@ -62,8 +62,7 @@ class BlobDetector:
         params.minInertiaRatio = 0.1
         
         # Default path for obstacle report
-        self.img_dir = '/home/catkin_ws/src/s5_racecar_rpi/racecar_behaviors/report/img/'
-        self.path_dir = '/home/catkin_ws/src/s5_racecar_rpi/racecar_behaviors/report/paths/'
+        self.img_dir = os.path.dirname(os.path.realpath(__file__))
 
         # Queue to put already detected objects
         self.object_queue = []
@@ -95,14 +94,16 @@ class BlobDetector:
         self.border = config.border
         return config
   
-    def save_image_cb(self, msg):
+    def save_image_cb(self, msg: String):
         rospy.loginfo("saving image")
         try: 
             cv2_img_saver = self.bridge.imgmsg_to_cv2(self.curr_img, "bgr8")
         except CvBridgeError as e:
             print(e)
         else:
-            cv2.imwrite((self.img_dir+f'{msg}.jpeg'), cv2_img_saver)
+            path = os.path.join(self.img_dir, msg.data)
+            rospy.logwarn("saving image to {}".format(path))
+            cv2.imwrite(path, cv2_img_saver)
         
         
     def image_callback(self, image, depth, info):
