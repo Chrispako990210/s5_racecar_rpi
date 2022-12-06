@@ -1,11 +1,14 @@
 
+import rospkg
+import os
 import rospy
 import cv2
 import numpy as np
 from nav_msgs.srv import GetMap
 from libbehaviors import *
 from goal import Goal
-from geometry_msgs.msg import Twist, PoseStamped
+from geometry_msgs.msg import Twist, Pose
+
 
 def m_cost(node_a, node_b):
     # Pour une carte, le coût est toujours de 1.
@@ -156,15 +159,15 @@ def brushfire(occupancyGrid):
         
     return mapOfWorld
 
-
+#return array map_securitaire(brushfire), map_background (original), coord origine, resolution
 def init_map(distSecuritaire):
     # rospy.init_node('brushfire')
 
     #get map
     prefix = "racecar"
-    rospy.wait_for_service(prefix + '/get_map')
+    rospy.wait_for_service('get_map')
     try:
-        get_map = rospy.ServiceProxy(prefix + '/get_map', GetMap)
+        get_map = rospy.ServiceProxy('get_map', GetMap)
         response = get_map()
     except (rospy.ServiceException) as e:
         print("Service call failed: %s"%e)
@@ -172,7 +175,7 @@ def init_map(distSecuritaire):
     
     rospy.loginfo("Got map=%dx%d resolution=%f", response.map.info.height, response.map.info.width, response.map.info.resolution)    
     grid = np.reshape(response.map.data, [response.map.info.height, response.map.info.width])
-
+    map_origin=(response.map.info.origin.position.x,response.map.info.origin.position.y)
     
     #copie de la carte originale
     background_map = grid.copy()
@@ -180,69 +183,78 @@ def init_map(distSecuritaire):
     background_map[maskFree] = 255 # free cells
 
     # distance securitaire en m
+    map_resolution=response.map.info.resolution
     nbCouche=int(distSecuritaire/response.map.info.resolution)
 
     #augmentation de la grosseur des obstacle en appliquant brushfire
     map_brushfire = brushfire(grid)
     layerFire(map_brushfire,nbCouche)
     
-    return (map_brushfire,background_map)
+    return (map_brushfire,background_map,map_origin,map_resolution)
 
 
-def generate_path(goal: Goal, map:tuple):
-
-    m_start = (25,25)
-    #m_goal =(goal.pose.pose.position.x, goal.pose.pose.position.y )
-    m_goal=(40,185)
+def generate_path(goal: Pose, map:tuple,name):
+    origin=(int(-map[2][1]/map[3]),int(-map[2][0]/map[3]))
+    m_start = origin
+    m_goal =(int((goal.position.y-map[2][1]/map[3])),int((goal.position.x-map[2][0])/map[3]))
+    rospy.loginfo("start : (%f,%f)",m_start[0],m_start[1])
+    rospy.loginfo("end : (%f,%f)",m_goal[0],m_goal[1])
     
     m_n = lambda node : m_neighbors_8(node, map[0])
     (seq, cost) = astar(m_start, m_goal, m_cost, m_n, m_h)
     
     #Test position sur carte
-    # for i in range(25):
-    #     map[1][i][25] = 75
-    # for i in range(185):
-    #     map[1][40][i] = 75
+    # for i in range(89):
+    #     map[1][i][36] = 75
+    # for i in range(37):
+    #     map[1][139][i] = 75
 
-    cv2.imwrite("map.bmp", cv2.transpose(cv2.flip(map[1], -1)))
-    rospy.loginfo("Exported map.bmp")
+
+    # cv2.imwrite("map.bmp", cv2.transpose(cv2.flip(map[1], -1)))
+    # rospy.loginfo("Exported map.bmp")
     
     #tracer le chemin sur la carte (tracer du resultat a* seq)
+    ballon_path=map[1].copy()
     for coord in seq:
         #rospy.loginfo("coord (%d, %d)",coord[0],coord[1])
-        map[1][coord[0]][coord[1]] = 75
+        ballon_path[coord[0]][coord[1]] = 75
 
-    #affichage de la carte avec couche de securite sur obstacle
-    map[0][map[0]==0]=255
-    cv2.imwrite("map_securitaire.bmp", cv2.transpose(cv2.flip(map[0], -1)))
-    rospy.loginfo("Exported map_securitaire.bmp")
+    # #affichage de la carte avec couche de securite sur obstacle
+    # map[0][map[0]==0]=255
+    # cv2.imwrite("map_securitaire.bmp", cv2.transpose(cv2.flip(map[0], -1)))
+    # rospy.loginfo("Exported map_securitaire.bmp")
 
     #enregistrement de la carte avec le chemin vers ballon
-    #cv2.imwrite("{goal.name}.bmp", cv2.transpose(cv2.flip(map[1], -1)))
-    cv2.imwrite("blob_map_planning.bmp", cv2.transpose(cv2.flip(map[1], -1)))
+    
+    rospack=rospkg.RosPack()
+    path_dir=rospack.get_path('racecar_behaviors')
+    path = os.path.join(path_dir, f'report/{name}')
+    cv2.imwrite(path,cv2.transpose(cv2.flip(ballon_path, -1)))
+    #cv2.imwrite("blob_map_planning.bmp", cv2.transpose(cv2.flip(map[1], -1)))
     rospy.loginfo("Exported blob_map_planning.bmp")
+
+    # map[0][map[0]==0]=255
+    # path = os.path.join(path_dir, f'report/mapSecure')
+    # cv2.imwrite("map_securitaire.bmp", cv2.transpose(cv2.flip(map[0], -1)))
+
     
-  
 # def report_path(distSecuritaire):
-def main():
+# def main():
     
 
-    rospy.init_node('blob_path_planner')
+#     rospy.init_node('blob_path_planner')
 
-    distSecuritaire=0.6
-    goal=Goal("goal",PoseStamped(),5)
-    goal.name="ballon1"
-    goal.pose.pose.position.x=40
-    goal.pose.pose.position.y=300
+#     distSecuritaire=0.6
+#     goal=Goal("ballon1",PoseStamped(),5)
+#     goal.pose.pose.position.x=5.0
+#     goal.pose.pose.position.y=0.8
+#     map=init_map(0.3)
+#     generate_path(goal,map)
+    
 
-    map=init_map(distSecuritaire)
-    generate_path(goal,map)
-
-
-
-if __name__ == '__main__':
-# try:
+# if __name__ == '__main__':
+# # try:
+# #     main()
+# # except rospy.ROSInterruptException:
+# #     pass
 #     main()
-# except rospy.ROSInterruptException:
-#     pass
-    main()

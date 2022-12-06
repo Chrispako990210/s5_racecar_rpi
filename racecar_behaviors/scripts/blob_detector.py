@@ -11,10 +11,11 @@ from racecar_behaviors.cfg import BlobDetectorConfig
 from dynamic_reconfigure.server import Server
 from std_msgs.msg import String, ColorRGBA
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import PoseStamped, Quaternion
+from geometry_msgs.msg import PoseStamped, Quaternion, Pose
 from cv_bridge import CvBridge, CvBridgeError
 from tf.transformations import euler_from_quaternion
 from libbehaviors import *
+import rospkg
 
 class BlobDetector:
     def __init__(self):
@@ -62,7 +63,9 @@ class BlobDetector:
         params.minInertiaRatio = 0.1
         
         # Default path for obstacle report
-        self.img_dir = os.path.dirname(os.path.realpath(__file__))
+        rosPack=rospkg.RosPack()
+        self.img_dir = rosPack.get_path('racecar_behaviors')
+        
 
         # Queue to put already detected objects
         self.object_queue = []
@@ -76,6 +79,7 @@ class BlobDetector:
         self.object_pub = rospy.Publisher('object_detected', String, queue_size=1)
         self.object_pose_pub = rospy.Publisher('object_pose', Quaternion, queue_size=1) # publish the pose of the object in the base_link frame
         self.blob_publisher=rospy.Publisher('ballon_pose', PoseStamped, queue_size=1)
+        self.debris_publisher=rospy.Publisher('position_debris', Pose, queue_size=1)
         self.image_sub = message_filters.Subscriber('image', Image)
         self.depth_sub = message_filters.Subscriber('depth', Image)
         self.info_sub = message_filters.Subscriber('camera_info', CameraInfo)
@@ -84,6 +88,7 @@ class BlobDetector:
         self.curr_img: Image = None
         self.ts = message_filters.TimeSynchronizer([self.image_sub, self.depth_sub, self.info_sub], 10)
         self.ts.registerCallback(self.image_callback)
+        self.itterator=0
         
     def config_callback(self, config, level):
         rospy.loginfo("""Reconfigure Request: {color_hue}, {color_saturation}, {color_value}, {color_range}, {border}""".format(**config))
@@ -101,7 +106,7 @@ class BlobDetector:
         except CvBridgeError as e:
             print(e)
         else:
-            path = os.path.join(self.img_dir, msg.data)
+            path = os.path.join(self.img_dir, f'report/{msg.data}')
             rospy.logwarn("saving image to {}".format(path))
             cv2.imwrite(path, cv2_img_saver)
         
@@ -159,6 +164,7 @@ class BlobDetector:
 
         # We process only the closest object detected
         if closestObject[2] > 0:
+            self.itterator+=1
             # assuming the object is circular, use center of the object as position
             transObj = (closestObject[0], closestObject[1], closestObject[2])
             rotObj = tf.transformations.quaternion_from_euler(0, np.pi/2, -np.pi/2)
@@ -200,15 +206,24 @@ class BlobDetector:
                     image.header.stamp,
                     self.goal_frame_id,
                     self.object_frame_id) 
+        
             
             # Compute object goal in map frame
-            if not self.is_in_boundary(transMap) and distance < 4.0 :
+            if not self.is_in_boundary(transMap) and distance < 2.7 and self.itterator > 7:
+                self.itterator=0
                 self.object_queue.append(transMap)
                 
                 rospy.loginfo("Object detected at [%f,%f] in %s frame! Distance and direction from robot: %fm %fdeg.", transMap[0], transMap[1], self.map_frame_id, distance, angle*180.0/np.pi)
-                goal = self.compute_goal(transMap,distance, angle)
+                goal = self.compute_goal()
                 self.blob_publisher.publish(goal)
 
+                pos_debris = Pose()
+                pos_debris.position.x = transMap[0]
+                pos_debris.position.y = transMap[1]
+                pos_debris.position.z = 0.0
+                self.debris_publisher.publish(pos_debris)
+        else:
+            self.itterator=0
         # debugging topic
         if self.image_pub.get_num_connections()>0:
             cv_image = cv2.bitwise_and(cv_image, cv_image, mask=mask)
@@ -228,7 +243,7 @@ class BlobDetector:
         #rospy.loginfo("false")
         return False
         
-    def compute_goal(self,transMap, distance, angle):
+    def compute_goal(self):
         
         #compute racecar pose in map frame
         try:
@@ -250,6 +265,7 @@ class BlobDetector:
         goal.pose.orientation.y = rotGoal[1]
         goal.pose.orientation.z = rotGoal[2]
         goal.pose.orientation.w = rotGoal[3]
+
 
         rospy.loginfo("returning goal")
         return goal

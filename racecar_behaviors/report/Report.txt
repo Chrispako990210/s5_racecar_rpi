@@ -1,0 +1,1 @@
+[Coord: x = 3.273797, y = 0.536133] [Picture_name: ballon0.jpeg] [Path_name: path_ballon0.bmp]
